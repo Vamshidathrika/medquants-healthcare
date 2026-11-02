@@ -1,0 +1,8 @@
+node_modules
+.vercel
+*.log
+.DS_Store
+capture.js
+capture_*.js
+crop_*.js
+ref_*.png

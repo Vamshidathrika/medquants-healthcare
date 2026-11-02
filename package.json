@@ -1,0 +1,25 @@
+{
+  "name": "medquants-healthcare",
+  "version": "1.0.0",
+  "description": "MedQuants Healthcare - Amethyst Purple Glassmorphism Mobile Prototype with Seamless Shutter-Up Reveal",
+  "main": "index.html",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/app.test.js",
+    "start": "npx serve ."
+  },
+  "keywords": [
+    "healthcare",
+    "telemedicine",
+    "pharmacy",
+    "lab-tests",
+    "glassmorphism",
+    "ui-prototype"
+  ],
+  "author": "Vamshi Dathrika",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.11.0"
+  }
+}

@@ -1,0 +1,2145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedQuants — Unified Healthcare Master Design</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Lucide Icons (Single Cohesive Icon Family) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              primary: '#8E2DA8',       // Amethyst Purple (Master Brand Primary)
+              primaryDark: '#5E1473',   // Royal Deep Purple
+              primaryLight: '#A235BF',  // Bright Amethyst Accent
+              secondary: '#6D1E82',     // Deep Violet
+              tertiary: '#FFCA74',      // Warm Amber Accent
+              lightPurple: '#FBF0FD',   // Whisper Lavender Tint
+              canvasStart: '#FFFFFF',
+              canvasEnd: '#F7EDFA',     // Ultra-subtle light purple ambient gradient
+              offBlack: '#211B27',      // Deep Charcoal
+              textSecondary: '#64748B',  // Slate Secondary Text
+              brandRed: '#E11D48',
+              success: '#10B981',
+            }
+          },
+          boxShadow: {
+            'purple-glow': '0 14px 34px -4px rgba(142, 45, 168, 0.35)',
+            'purple-sm': '0 4px 14px rgba(142, 45, 168, 0.22)',
+            'glass-depth': '0 12px 30px -4px rgba(142, 45, 168, 0.07), inset 0 1px 1.5px rgba(255, 255, 255, 0.95)',
+            'card-float': '0 12px 28px -6px rgba(142, 45, 168, 0.12), 0 3px 8px rgba(0, 0, 0, 0.02)',
+            'dock-shadow': '0 -8px 24px -2px rgba(142, 45, 168, 0.10)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .spring-press {
+      transition: transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.14s ease;
+    }
+    .spring-press:active {
+      transform: scale(0.96);
+    }
+
+    /* Double-Bezel Specular Glassmorphism */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.92);
+      box-shadow: 0 10px 28px -4px rgba(142, 45, 168, 0.07), 0 2px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .glass-dock {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-top: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 -8px 24px -2px rgba(142, 45, 168, 0.08);
+    }
+
+    .gradient-hero-purple {
+      background: linear-gradient(145deg, #4F0E63 0%, #7D2197 50%, #9C33B8 100%);
+    }
+
+    .gradient-card-purple {
+      background: linear-gradient(135deg, #8E2DA8 0%, #601575 100%);
+    }
+
+    .gradient-card-amethyst {
+      background: linear-gradient(135deg, #7E1E9B 0%, #4D0A63 100%);
+    }
+
+    /* Ambient Whisper Purple Canvas */
+    .bg-whisper-purple {
+      background: linear-gradient(180deg, #FFFFFF 0%, #FCF9FE 30%, #F9F2FB 70%, #F5EAF8 100%);
+    }
+
+    /* Radar Waves & Pulse Animations */
+    @keyframes radar-pulse {
+      0% { transform: scale(0.85); opacity: 0.9; }
+      50% { transform: scale(1.18); opacity: 0.35; }
+      100% { transform: scale(0.85); opacity: 0.9; }
+    }
+    @keyframes orbit-float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-7px); }
+    }
+    .animate-radar {
+      animation: radar-pulse 3.5s infinite ease-in-out;
+    }
+    .animate-orbit {
+      animation: orbit-float 3s infinite ease-in-out;
+    }
+
+    /* Seamless Shutter Up Curtain Animation */
+    #shutter-splash-overlay {
+      will-change: transform, opacity;
+      transform-origin: top center;
+    }
+    #shutter-splash-overlay.shutter-open {
+      transform: translateY(-100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease 0.45s;
+    }
+    #shutter-splash-overlay.shutter-closed {
+      transform: translateY(0%);
+      opacity: 1;
+      pointer-events: auto;
+      transition: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 min-h-screen text-slate-800 font-sans antialiased flex flex-col items-center justify-start p-3 sm:p-6 select-none">
+
+  <!-- ========================================================================= -->
+  <!-- TOP PROTOTYPE BAR & SCREEN SWITCHER (ALL ORIGINAL SCREENS)                -->
+  <!-- ========================================================================= -->
+  <header class="w-full max-w-5xl mb-4 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900/90 border border-purple-500/20 backdrop-blur-xl px-5 py-3 rounded-2xl shadow-2xl">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#A235BF] via-[#8E2DA8] to-[#5E1473] flex items-center justify-center text-white shadow-purple-glow font-black text-sm">
+        MQ
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-white font-extrabold text-sm tracking-tight">MedQuants Healthcare</h1>
+          <span class="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-black border border-purple-500/30">MASTER PROTOTYPE</span>
+        </div>
+        <p class="text-slate-400 text-[11px]">Amethyst Purple Glassmorphism • Seamless Shutter-Up Reveal</p>
+      </div>
+    </div>
+
+    <!-- Screen Navigation Switcher Bar -->
+    <div class="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 sm:pb-0 hide-scrollbar">
+      <button onclick="replayShutterAnimation()" class="px-3 py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-slate-950 shadow-md shrink-0 flex items-center gap-1.5 spring-press">
+        <i data-lucide="play" class="w-3.5 h-3.5 fill-slate-950"></i> Replay Shutter Up
+      </button>
+      <button onclick="switchScreen('screen-splash')" id="screen-btn-splash" class="screen-btn px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white shrink-0 flex items-center gap-1">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Flow Paths
+      </button>
+      <button onclick="switchScreen('screen-home')" id="screen-btn-home" class="screen-btn px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-[#8E2DA8] text-white shadow-md shrink-0 flex items-center gap-1">
+        <i data-lucide="home" class="w-3.5 h-3.5"></i> Home
+      </button>
+      <button onclick="switchScreen('screen-doctor-hub')" id="screen-btn-doctor-hub" class="screen-btn px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white shrink-0 flex items-center gap-1">
+        <i data-lucide="stethoscope" class="w-3.5 h-3.5"></i> Doctor Hub
+      </button>
+      <button onclick="switchScreen('screen-doctor-booking')" id="screen-btn-doctor-booking" class="screen-btn px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white shrink-0 flex items-center gap-1">
+        <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Dr. Booking
+      </button>
+      <button onclick="switchScreen('screen-pharmacy-home')" id="screen-btn-pharmacy-home" class="screen-btn px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white shrink-0 flex items-center gap-1">
+        <i data-lucide="store" class="w-3.5 h-3.5"></i> Pharmacy
+      </button>
+      <button onclick="switchScreen('screen-medicines')" id="screen-btn-medicines" class="screen-btn px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white shrink-0 flex items-center gap-1">
+        <i data-lucide="pill" class="w-3.5 h-3.5"></i> Medicines
+      </button>
+      <button onclick="switchScreen('screen-lab-hub')" id="screen-btn-lab-hub" class="screen-btn px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white shrink-0 flex items-center gap-1">
+        <i data-lucide="activity" class="w-3.5 h-3.5"></i> Lab Hub
+      </button>
+      <button onclick="switchScreen('screen-tests')" id="screen-btn-tests" class="screen-btn px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white shrink-0 flex items-center gap-1">
+        <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i> Lab Catalog
+      </button>
+      <button onclick="switchScreen('screen-booking')" id="screen-btn-booking" class="screen-btn px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white shrink-0 flex items-center gap-1">
+        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Lab Booking
+      </button>
+      <button onclick="switchScreen('screen-profile')" id="screen-btn-profile" class="screen-btn px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white shrink-0 flex items-center gap-1">
+        <i data-lucide="user" class="w-3.5 h-3.5"></i> Profile
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- PHONE FRAME: APPLE IPHONE 16 PRO MAX HARDWARE SHELL                       -->
+  <!-- ========================================================================= -->
+  <div id="phone-frame" class="relative w-[392px] h-[852px] bg-slate-900 rounded-[54px] p-3 shadow-[0_25px_70px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.1),0_0_40px_rgba(142,45,168,0.2)] border border-slate-800">
+    
+    <!-- Outer Glass Bezel Screen -->
+    <div class="relative w-full h-full rounded-[44px] overflow-hidden bg-whisper-purple flex flex-col shadow-inner">
+
+      <!-- Dynamic Island Pill -->
+      <div class="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-7 bg-black rounded-full z-[60] flex items-center justify-between px-3 shadow-md pointer-events-none">
+        <div class="w-2.5 h-2.5 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center">
+          <div class="w-1 h-1 rounded-full bg-purple-400/50"></div>
+        </div>
+        <div class="w-2.5 h-2.5 rounded-full bg-purple-500/30 flex items-center justify-center">
+          <div class="w-1 h-1 rounded-full bg-purple-400"></div>
+        </div>
+      </div>
+
+      <!-- Floating Wireframe Flow HUD Indicator -->
+      <div id="wireframe-hud" class="hidden absolute top-11 left-3 right-3 z-[60] glass-card px-3 py-2 rounded-2xl shadow-xl flex items-center justify-between border border-purple-300/80 bg-white/95">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <div>
+            <div class="text-[9px] font-black uppercase tracking-wider text-brand-primary flex items-center gap-1">
+              <span id="hud-path-name">Path: Doctor Consultation</span>
+            </div>
+            <div class="text-xs font-black text-brand-offBlack" id="hud-step-title">Step 1 of 3: Home Dashboard</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-1">
+          <button onclick="prevWireframeStep()" class="w-7 h-7 rounded-lg bg-purple-50 text-brand-primary flex items-center justify-center text-xs font-bold hover:bg-purple-100 spring-press" title="Previous Step">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          </button>
+          <button onclick="nextWireframeStep()" class="w-7 h-7 rounded-lg gradient-card-purple text-white flex items-center justify-center text-xs font-bold hover:opacity-90 spring-press" title="Next Step">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+          <button onclick="exitWireframeMode()" class="w-7 h-7 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold hover:bg-slate-200 spring-press ml-1" title="Exit Wireframe">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SEAMLESS SHUTTER-UP SPLASH OVERLAY (White MedQuants Logo on Deep Purple)  -->
+      <!-- ========================================================================= -->
+      <div id="shutter-splash-overlay" class="absolute inset-0 z-50 gradient-hero-purple rounded-b-[44px] flex flex-col justify-between p-6 pb-12 shadow-2xl overflow-hidden shutter-closed">
+        
+        <!-- Ambient Glowing Background Accents & Concentric Radar Rings -->
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div class="w-80 h-80 rounded-full border border-white/10 animate-radar"></div>
+          <div class="absolute w-60 h-60 rounded-full border border-white/15 animate-radar" style="animation-delay: 0.9s;"></div>
+          <div class="absolute w-44 h-44 rounded-full border border-white/20 animate-radar" style="animation-delay: 1.8s;"></div>
+          <div class="absolute -top-20 -right-20 w-64 h-64 bg-purple-400/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-fuchsia-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        </div>
+
+        <!-- Top Spacer (under dynamic island) -->
+        <div class="pt-10 flex justify-center">
+          <div class="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-black uppercase tracking-widest text-purple-200 shadow-sm flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Healthcare Ecosystem</span>
+          </div>
+        </div>
+
+        <!-- Center: Official MedQuants White Logo & Heartbeat Pulse -->
+        <div class="relative z-10 flex flex-col items-center text-center my-auto">
+          <!-- White Logo Display with Glow -->
+          <div class="relative w-64 mb-6 flex items-center justify-center">
+            <img src="medquants_logo.png" alt="MedQuants Healthcare" class="w-full object-contain filter brightness-0 invert drop-shadow-[0_4px_24px_rgba(255,255,255,0.7)]" />
+          </div>
+
+          <!-- Pulsing Heartbeat Line & Tagline -->
+          <div class="flex items-center gap-3 w-48 mb-4">
+            <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-white/50 to-white"></div>
+            <div class="w-2 h-2 rounded-full bg-white animate-ping"></div>
+            <div class="h-[1px] flex-1 bg-gradient-to-l from-transparent via-white/50 to-white"></div>
+          </div>
+          <p class="text-xs font-semibold text-purple-100/90 tracking-wide">Next-Gen Integrated Healthcare</p>
+          <p class="text-[10px] text-purple-200/60 mt-1 font-mono tracking-tight">10-Min Meds • 24/7 Doctors • Doorstep Labs</p>
+        </div>
+
+        <!-- Bottom: Progress Bar & Interactive Shutter Release -->
+        <div class="relative z-10 flex flex-col items-center w-full">
+          <!-- Loading Progress -->
+          <div class="w-full max-w-[260px] mb-5">
+            <div class="flex justify-between items-center text-[10px] font-bold text-purple-200 mb-1.5">
+              <span id="shutter-status-text">Connecting to NGO Colony...</span>
+              <span id="shutter-percent-text">0%</span>
+            </div>
+            <div class="w-full h-1.5 bg-white/15 rounded-full overflow-hidden p-0.5">
+              <div id="shutter-progress-bar" class="h-full bg-gradient-to-r from-purple-200 via-white to-purple-100 rounded-full transition-all duration-300 w-0 shadow-[0_0_12px_rgba(255,255,255,0.8)]"></div>
+            </div>
+          </div>
+
+          <!-- Tap to Shutter Up Action -->
+          <button onclick="triggerShutterUp()" class="px-5 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 active:scale-95 text-white border border-white/30 backdrop-blur-md text-xs font-black tracking-wide flex items-center gap-2 shadow-lg transition-all cursor-pointer spring-press">
+            <span>Enter MedQuants</span>
+            <i data-lucide="chevron-up" class="w-4 h-4 stroke-[3] animate-bounce"></i>
+          </button>
+          
+          <div class="mt-3 text-[9px] text-white/50 font-medium">
+            Seamless Shutter Curtain Reveal
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SCREEN 0: INTERACTIVE LOADING SCREEN & WIREFRAME USER PATHS               -->
+      <!-- ========================================================================= -->
+      <div id="screen-splash" class="app-screen hidden flex-1 flex flex-col h-full overflow-hidden relative">
+        <div class="flex-1 overflow-y-auto hide-scrollbar pb-10">
+          
+          <!-- Concentric Radar Ripples Hero Canvas (Matching Original Reference Image) -->
+          <div class="gradient-hero-purple pt-14 pb-8 px-5 rounded-b-[44px] shadow-purple-glow text-white relative overflow-hidden flex flex-col items-center justify-center min-h-[380px]">
+            
+            <!-- Concentric Radar Rings -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <!-- Ring 1 (Outer) -->
+              <div class="w-72 h-72 rounded-full border border-white/10 animate-radar"></div>
+              <!-- Ring 2 -->
+              <div class="absolute w-56 h-56 rounded-full border border-white/20 animate-radar" style="animation-delay: 0.8s;"></div>
+              <!-- Ring 3 -->
+              <div class="absolute w-40 h-40 rounded-full border border-white/30 animate-radar" style="animation-delay: 1.6s;"></div>
+              <!-- Ring 4 (Inner) -->
+              <div class="absolute w-24 h-24 rounded-full bg-white/10 backdrop-blur-md border border-white/40"></div>
+            </div>
+
+            <!-- Orbiting Specialist Emblems (Matching Original Radar in Reference Image) -->
+            <!-- 1. Location (Top Left) -->
+            <div class="absolute top-20 left-12 w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-sm animate-orbit">
+              <i data-lucide="map-pin" class="w-4 h-4 text-amber-300"></i>
+            </div>
+            <!-- 2. Stethoscope (Top Right) -->
+            <div class="absolute top-24 right-14 w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-sm animate-orbit" style="animation-delay: 1s;">
+              <i data-lucide="stethoscope" class="w-4 h-4 text-purple-200"></i>
+            </div>
+            <!-- 3. Pill Capsule (Middle Left) -->
+            <div class="absolute top-44 left-7 w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-sm animate-orbit" style="animation-delay: 1.5s;">
+              <i data-lucide="pill" class="w-4 h-4 text-white"></i>
+            </div>
+            <!-- 4. Lab Flask (Middle Right) -->
+            <div class="absolute top-48 right-8 w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-sm animate-orbit" style="animation-delay: 2s;">
+              <i data-lucide="flask-conical" class="w-4 h-4 text-amber-300"></i>
+            </div>
+            <!-- 5. Heart (Bottom) -->
+            <div class="absolute bottom-12 left-28 w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-sm animate-orbit" style="animation-delay: 2.5s;">
+              <i data-lucide="heart" class="w-4 h-4 text-rose-300"></i>
+            </div>
+
+            <!-- Center Centerpiece Doctor / Healthcare Avatar -->
+            <div class="relative z-10 w-20 h-20 rounded-full bg-white/25 backdrop-blur-xl border-2 border-white/80 p-1 flex items-center justify-center shadow-2xl">
+              <div class="w-full h-full rounded-full bg-gradient-to-tr from-[#9C33B8] to-[#601575] flex items-center justify-center text-white shadow-inner">
+                <i data-lucide="heart-pulse" class="w-9 h-9 text-white animate-pulse"></i>
+              </div>
+            </div>
+
+            <!-- Brand Tagline (Matching User Image: "Your Health, Connected...") -->
+            <div class="relative z-10 text-center mt-5">
+              <span class="text-[10px] font-black uppercase tracking-widest text-purple-200 bg-white/10 px-2.5 py-1 rounded-full border border-white/15">
+                MEDQUANTS v2.4
+              </span>
+              <h2 class="text-xl font-black mt-2 tracking-tight">Your Health, All in One Place</h2>
+              <p class="text-xs text-purple-200 mt-1 max-w-[260px] mx-auto leading-relaxed">
+                Consult verified doctors • 10-min medicine delivery • Home lab tests
+              </p>
+            </div>
+
+            <!-- Animated Loading Progress Bar -->
+            <div class="relative z-10 w-full max-w-[260px] mt-4">
+              <div class="flex items-center justify-between text-[10px] font-bold text-purple-200 mb-1">
+                <span id="splash-status-text">Connecting to Care Network...</span>
+                <span id="splash-percent-text">100%</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full bg-white/20 overflow-hidden">
+                <div id="splash-progress-fill" class="h-full bg-amber-400 rounded-full w-full transition-all duration-1000 shadow-sm"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Interactive User Paths & Wireframes Flow Navigator -->
+          <div class="p-4 space-y-3">
+            <div class="flex items-center justify-between px-1">
+              <div>
+                <h3 class="text-xs font-black uppercase tracking-wider text-brand-offBlack">Interactive User Paths</h3>
+                <p class="text-[10px] text-brand-textSecondary">Step through real app journeys like wireframes</p>
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-purple-100 text-brand-primary text-[9px] font-black">4 FLOWS</span>
+            </div>
+
+            <!-- Flow Path 1: Doctor Consultation Flow -->
+            <div class="glass-card p-3 rounded-2xl border border-purple-200/80 hover:border-brand-primary transition-all">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-purple-50 text-brand-primary flex items-center justify-center font-bold">
+                    <i data-lucide="stethoscope" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-extrabold text-brand-offBlack">Path 1: Doctor Consultation</h4>
+                    <p class="text-[9.5px] text-brand-textSecondary">From discovery to video consultation booking</p>
+                  </div>
+                </div>
+                <button onclick="startUserPath('path1')" class="px-3 py-1.5 gradient-card-purple text-white text-[10px] font-bold rounded-xl shadow-purple-sm spring-press flex items-center gap-1">
+                  Start Flow <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                </button>
+              </div>
+              <div class="mt-2.5 pt-2 border-t border-purple-100/60 flex items-center gap-1 text-[9px] text-slate-500 font-bold overflow-x-auto hide-scrollbar">
+                <span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 shrink-0">1. Home</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 shrink-0"></i>
+                <span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 shrink-0">2. Doctor Hub</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 shrink-0"></i>
+                <span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 shrink-0">3. Dr. Rahul Booking</span>
+              </div>
+            </div>
+
+            <!-- Flow Path 2: 10-Min Pharmacy Flow -->
+            <div class="glass-card p-3 rounded-2xl border border-purple-200/80 hover:border-brand-primary transition-all">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-purple-50 text-brand-primary flex items-center justify-center font-bold">
+                    <i data-lucide="pill" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-extrabold text-brand-offBlack">Path 2: 10-Min Pharmacy</h4>
+                    <p class="text-[9.5px] text-brand-textSecondary">Browse OTC &amp; medicines, add to cart &amp; checkout</p>
+                  </div>
+                </div>
+                <button onclick="startUserPath('path2')" class="px-3 py-1.5 gradient-card-purple text-white text-[10px] font-bold rounded-xl shadow-purple-sm spring-press flex items-center gap-1">
+                  Start Flow <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                </button>
+              </div>
+              <div class="mt-2.5 pt-2 border-t border-purple-100/60 flex items-center gap-1 text-[9px] text-slate-500 font-bold overflow-x-auto hide-scrollbar">
+                <span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 shrink-0">1. Home</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 shrink-0"></i>
+                <span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 shrink-0">2. Pharmacy Landing</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 shrink-0"></i>
+                <span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 shrink-0">3. 2-Col Medicines Grid</span>
+              </div>
+            </div>
+
+            <!-- Flow Path 3: Doorstep Lab Diagnostic Flow -->
+            <div class="glass-card p-3 rounded-2xl border border-purple-200/80 hover:border-brand-primary transition-all">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-purple-50 text-brand-primary flex items-center justify-center font-bold">
+                    <i data-lucide="flask-conical" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-extrabold text-brand-offBlack">Path 3: Doorstep Lab Tests</h4>
+                    <p class="text-[9.5px] text-brand-textSecondary">CBC/Thyroid packages, home phlebotomy slot</p>
+                  </div>
+                </div>
+                <button onclick="startUserPath('path3')" class="px-3 py-1.5 gradient-card-purple text-white text-[10px] font-bold rounded-xl shadow-purple-sm spring-press flex items-center gap-1">
+                  Start Flow <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                </button>
+              </div>
+              <div class="mt-2.5 pt-2 border-t border-purple-100/60 flex items-center gap-1 text-[9px] text-slate-500 font-bold overflow-x-auto hide-scrollbar">
+                <span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 shrink-0">1. Home</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 shrink-0"></i>
+                <span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 shrink-0">2. Lab Hub</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 shrink-0"></i>
+                <span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 shrink-0">3. Lab Catalog</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 shrink-0"></i>
+                <span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 shrink-0">4. Slot Booking</span>
+              </div>
+            </div>
+
+            <!-- Flow Path 4: Account & Health Records -->
+            <div class="glass-card p-3 rounded-2xl border border-purple-200/80 hover:border-brand-primary transition-all">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-purple-50 text-brand-primary flex items-center justify-center font-bold">
+                    <i data-lucide="user" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-extrabold text-brand-offBlack">Path 4: Profile &amp; Records</h4>
+                    <p class="text-[9.5px] text-brand-textSecondary">Medical details, wallet, orders &amp; addresses</p>
+                  </div>
+                </div>
+                <button onclick="startUserPath('path4')" class="px-3 py-1.5 gradient-card-purple text-white text-[10px] font-bold rounded-xl shadow-purple-sm spring-press flex items-center gap-1">
+                  Start Flow <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                </button>
+              </div>
+              <div class="mt-2.5 pt-2 border-t border-purple-100/60 flex items-center gap-1 text-[9px] text-slate-500 font-bold overflow-x-auto hide-scrollbar">
+                <span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 shrink-0">1. Home</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 shrink-0"></i>
+                <span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 shrink-0">2. Account Settings</span>
+              </div>
+            </div>
+
+            <!-- Direct Entry CTA -->
+            <div class="pt-2">
+              <button onclick="switchScreen('screen-home')" class="w-full py-3.5 bg-white border-2 border-brand-primary text-brand-primary rounded-2xl text-xs font-black shadow-sm flex items-center justify-center gap-2 spring-press hover:bg-purple-50">
+                <i data-lucide="home" class="w-4 h-4"></i> Enter Directly to Master Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SCREEN 1: MASTER HOMESCREEN (WAVE GRADIENT + GLASS CARDS + NEXT APPT)     -->
+      <!-- ========================================================================= -->
+      <div id="screen-home" class="app-screen flex-1 flex flex-col h-full overflow-hidden relative">
+        <div class="flex-1 overflow-y-auto hide-scrollbar pb-24">
+          <!-- Amethyst Wave Gradient Header with Ambient Specular Depth -->
+          <div class="gradient-hero-purple p-5 pt-12 pb-8 text-white rounded-b-[40px] shadow-purple-glow text-center relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/10 to-transparent pointer-events-none"></div>
+
+            <!-- Top Row: Avatar, Deliver Location, Notification -->
+            <div class="flex items-center justify-between relative z-10">
+              <button onclick="switchScreen('screen-profile')" class="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white font-black text-xs shadow-md spring-press">
+                NS
+              </button>
+              <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-[11px] font-bold">
+                <i data-lucide="map-pin" class="w-3 h-3 text-amber-300"></i> Deliver to NGO Colony
+                <i data-lucide="chevron-down" class="w-3 h-3 text-white/80"></i>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="relative w-9 h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white spring-press">
+                  <i data-lucide="bell" class="w-4 h-4"></i>
+                  <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Greeting Banner -->
+            <div class="mt-4 text-center relative z-10">
+              <span class="text-xs font-semibold text-purple-100">Good afternoon,</span>
+              <h2 class="text-xl font-black mt-0.5 tracking-tight">What's on your health today?</h2>
+              <div class="mt-2.5 text-[10px] font-bold text-purple-200 uppercase tracking-widest">Next Appointment</div>
+            </div>
+
+            <!-- Stacked Physical Glass Cards (Double-Bezel Architecture) -->
+            <div class="mt-2.5 relative z-20 text-left">
+              <!-- Back Deck Layer -->
+              <div class="absolute -top-1.5 left-4 right-4 h-6 bg-white/30 backdrop-blur-md rounded-2xl border border-white/35"></div>
+              
+              <!-- Foreground Glass Card -->
+              <div class="relative glass-card text-brand-offBlack rounded-2xl p-4 shadow-card-float">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FBEEFF] to-[#E9CEF5] border border-purple-200 flex items-center justify-center text-brand-primary shadow-sm shrink-0">
+                    <i data-lucide="stethoscope" class="w-6 h-6 text-brand-primary"></i>
+                  </div>
+                  <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-1.5">
+                        <h4 class="text-xs font-extrabold text-brand-offBlack">Dr. Rahul</h4>
+                        <i data-lucide="badge-check" class="w-3.5 h-3.5 text-brand-secondary fill-brand-secondary text-white"></i>
+                      </div>
+                      <i data-lucide="arrow-up-right" class="w-4 h-4 text-purple-400"></i>
+                    </div>
+                    <p class="text-[10px] text-brand-textSecondary mt-0.5">Cardiologist • Today, 11:30 AM</p>
+                  </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-purple-100/70 flex gap-2">
+                  <button class="flex-1 py-1.5 bg-white/80 border border-purple-200 rounded-xl text-xs font-bold text-slate-700 spring-press">Reschedule</button>
+                  <button onclick="switchScreen('screen-doctor-booking')" class="flex-1 py-1.5 gradient-card-purple text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-purple-sm spring-press">
+                    <i data-lucide="video" class="w-3.5 h-3.5"></i> Join Call
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Bottom Pill Chevron -->
+              <div class="flex justify-center -mt-2.5 relative z-30">
+                <div class="w-6 h-6 rounded-full bg-white/95 backdrop-blur-md border border-purple-200 text-purple-600 flex items-center justify-center shadow-sm">
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Services Navigation Grid -->
+          <div class="px-5 mt-4">
+            <div class="text-xs font-black text-brand-offBlack mb-2 uppercase tracking-wide">Quick Services</div>
+            <div class="grid grid-cols-4 gap-2.5 text-center">
+              <button onclick="switchScreen('screen-medicines')" class="glass-card p-2.5 rounded-2xl spring-press">
+                <div class="w-10 h-10 mx-auto bg-purple-50 text-brand-primary rounded-xl flex items-center justify-center mb-1 shadow-sm"><i data-lucide="pill" class="w-5 h-5"></i></div>
+                <div class="text-[10.5px] font-bold text-brand-offBlack">Medicines</div>
+              </button>
+              <button onclick="switchScreen('screen-doctor-hub')" class="glass-card p-2.5 rounded-2xl spring-press">
+                <div class="w-10 h-10 mx-auto bg-purple-50 text-brand-primary rounded-xl flex items-center justify-center mb-1 shadow-sm"><i data-lucide="stethoscope" class="w-5 h-5"></i></div>
+                <div class="text-[10.5px] font-bold text-brand-offBlack">Consult</div>
+              </button>
+              <button onclick="switchScreen('screen-lab-hub')" class="glass-card p-2.5 rounded-2xl spring-press">
+                <div class="w-10 h-10 mx-auto bg-amber-50 text-amber-700 rounded-xl flex items-center justify-center mb-1 shadow-sm"><i data-lucide="flask-conical" class="w-5 h-5"></i></div>
+                <div class="text-[10.5px] font-bold text-brand-offBlack">Lab Test</div>
+              </button>
+              <button onclick="switchScreen('screen-pharmacy-home')" class="glass-card p-2.5 rounded-2xl spring-press">
+                <div class="w-10 h-10 mx-auto bg-purple-50 text-brand-primary rounded-xl flex items-center justify-center mb-1 shadow-sm"><i data-lucide="smartphone" class="w-5 h-5"></i></div>
+                <div class="text-[10.5px] font-bold text-brand-offBlack">Devices</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Specialty Filter Chips (100% Lucide Icons, ZERO Emojis) -->
+          <div class="px-5 mt-4">
+            <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+              <button onclick="switchScreen('screen-doctor-hub')" class="px-3.5 py-1.5 rounded-full glass-card text-[11px] font-bold text-slate-700 shrink-0 flex items-center gap-1.5 spring-press">
+                <i data-lucide="bone" class="w-3.5 h-3.5 text-brand-primary"></i> Bone
+              </button>
+              <button onclick="switchScreen('screen-doctor-hub')" class="px-3.5 py-1.5 rounded-full gradient-card-purple text-white text-[11px] font-bold shadow-purple-sm shrink-0 flex items-center gap-1.5 spring-press">
+                <i data-lucide="brain" class="w-3.5 h-3.5 text-white"></i> Brain expert
+              </button>
+              <button onclick="switchScreen('screen-doctor-hub')" class="px-3.5 py-1.5 rounded-full glass-card text-[11px] font-bold text-slate-700 shrink-0 flex items-center gap-1.5 spring-press">
+                <i data-lucide="smile" class="w-3.5 h-3.5 text-purple-600"></i> Dental
+              </button>
+              <button onclick="switchScreen('screen-doctor-hub')" class="px-3.5 py-1.5 rounded-full glass-card text-[11px] font-bold text-slate-700 shrink-0 flex items-center gap-1.5 spring-press">
+                <i data-lucide="activity" class="w-3.5 h-3.5 text-purple-600"></i> Digestion
+              </button>
+            </div>
+          </div>
+
+          <!-- Find a Doctor Carousel -->
+          <div class="px-5 mt-4">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-xs font-extrabold text-brand-offBlack">Find a Doctor</h4>
+              <button onclick="switchScreen('screen-doctor-hub')" class="text-[11px] font-bold text-brand-primary flex items-center gap-0.5">View All <i data-lucide="chevron-right" class="w-3 h-3"></i></button>
+            </div>
+            <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-1">
+              <!-- Dr. Rahul -->
+              <div onclick="switchScreen('screen-doctor-booking')" class="w-36 shrink-0 glass-card p-3 rounded-2xl spring-press cursor-pointer">
+                <div class="relative w-full h-24 rounded-xl overflow-hidden bg-gradient-to-br from-[#FBEEFF] via-purple-100/50 to-[#E9CEF5] border border-purple-100 flex flex-col items-center justify-center mb-2">
+                  <div class="w-12 h-12 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-brand-primary shadow-sm">
+                    <i data-lucide="stethoscope" class="w-6 h-6 text-brand-primary"></i>
+                  </div>
+                  <div class="inline-flex items-center gap-1 mt-1.5 bg-white/95 backdrop-blur-md px-1.5 py-0.5 rounded-md text-[9px] font-bold text-amber-800 shadow-sm">
+                    <i data-lucide="star" class="w-2.5 h-2.5 fill-amber-500 text-amber-500"></i> 4.9
+                  </div>
+                </div>
+                <h5 class="text-xs font-bold text-brand-offBlack truncate">Dr. Rahul</h5>
+                <p class="text-[9.5px] text-brand-textSecondary truncate">Cardiologist</p>
+                <div class="text-[11px] font-extrabold text-brand-primary mt-1">₹720<span class="text-[8.5px] font-normal text-slate-400">/session</span></div>
+              </div>
+
+              <!-- Dr. Anaya Kapoor -->
+              <div onclick="switchScreen('screen-doctor-booking')" class="w-36 shrink-0 glass-card p-3 rounded-2xl spring-press cursor-pointer">
+                <div class="relative w-full h-24 rounded-xl overflow-hidden bg-gradient-to-br from-[#FAF0FE] via-purple-100/40 to-[#F0D5FA] border border-purple-100 flex flex-col items-center justify-center mb-2">
+                  <div class="w-12 h-12 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-brand-primary shadow-sm">
+                    <i data-lucide="brain" class="w-6 h-6 text-brand-primary"></i>
+                  </div>
+                  <div class="inline-flex items-center gap-1 mt-1.5 bg-white/95 backdrop-blur-md px-1.5 py-0.5 rounded-md text-[9px] font-bold text-amber-800 shadow-sm">
+                    <i data-lucide="star" class="w-2.5 h-2.5 fill-amber-500 text-amber-500"></i> 4.8
+                  </div>
+                </div>
+                <h5 class="text-xs font-bold text-brand-offBlack truncate">Dr. Anaya Kapoor</h5>
+                <p class="text-[9.5px] text-brand-textSecondary truncate">Neurologist</p>
+                <div class="text-[11px] font-extrabold text-brand-primary mt-1">₹650<span class="text-[8.5px] font-normal text-slate-400">/session</span></div>
+              </div>
+
+              <!-- Dr. James Okonkwo -->
+              <div onclick="switchScreen('screen-doctor-booking')" class="w-36 shrink-0 glass-card p-3 rounded-2xl spring-press cursor-pointer">
+                <div class="relative w-full h-24 rounded-xl overflow-hidden bg-gradient-to-br from-[#FFF9EE] via-amber-100/50 to-[#FCECD0] border border-amber-100 flex flex-col items-center justify-center mb-2">
+                  <div class="w-12 h-12 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-amber-700 shadow-sm">
+                    <i data-lucide="activity" class="w-6 h-6 text-amber-700"></i>
+                  </div>
+                  <div class="inline-flex items-center gap-1 mt-1.5 bg-white/95 backdrop-blur-md px-1.5 py-0.5 rounded-md text-[9px] font-bold text-amber-800 shadow-sm">
+                    <i data-lucide="star" class="w-2.5 h-2.5 fill-amber-500 text-amber-500"></i> 4.7
+                  </div>
+                </div>
+                <h5 class="text-xs font-bold text-brand-offBlack truncate">Dr. James Okonkwo</h5>
+                <p class="text-[9.5px] text-brand-textSecondary truncate">General Physician</p>
+                <div class="text-[11px] font-extrabold text-brand-primary mt-1">₹500<span class="text-[8.5px] font-normal text-slate-400">/session</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SCREEN 2: DOCTOR CONSULTATION HUB (MATCHING ORIGINAL SCREENSHOT)          -->
+      <!-- ========================================================================= -->
+      <div id="screen-doctor-hub" class="app-screen hidden flex-1 flex flex-col h-full overflow-hidden relative">
+        <!-- Top App Bar -->
+        <div class="h-12 px-4 flex items-center justify-between bg-white/85 backdrop-blur-xl shrink-0 border-b border-purple-100/60 z-30">
+          <div class="flex items-center gap-2">
+            <button onclick="switchScreen('screen-home')" class="w-8 h-8 rounded-full hover:bg-purple-50 flex items-center justify-center text-brand-offBlack spring-press">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </button>
+            <h2 class="text-sm font-black text-brand-offBlack">Doctor Consultation</h2>
+          </div>
+          <button class="w-8 h-8 rounded-full hover:bg-purple-50 flex items-center justify-center text-brand-offBlack">
+            <i data-lucide="search" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto hide-scrollbar p-4 pb-28 space-y-4">
+          <!-- The Best Medical Services Banner (20% OFF) -->
+          <div class="gradient-card-purple rounded-2xl p-4 text-white flex items-center justify-between relative shadow-purple-sm">
+            <div>
+              <span class="text-[9px] font-black bg-amber-400 text-slate-900 px-2 py-0.5 rounded-md shadow-sm">20% OFF</span>
+              <h3 class="text-sm font-black mt-1.5 uppercase tracking-wide">The Best Medical Services</h3>
+              <p class="text-[10px] text-purple-200 mt-0.5">Top verified doctors available online 24/7</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shrink-0 shadow-inner">
+              <i data-lucide="stethoscope" class="w-6 h-6"></i>
+            </div>
+          </div>
+
+          <!-- Top Concerns vs By Symptoms Tabs -->
+          <div class="flex p-1 bg-white/80 backdrop-blur-md rounded-2xl border border-purple-100/80 text-xs font-bold">
+            <button class="flex-1 py-1.5 rounded-xl gradient-card-purple text-white shadow-sm text-center">Top Concerns</button>
+            <button class="flex-1 py-1.5 rounded-xl text-slate-500 text-center">By Symptoms</button>
+          </div>
+
+          <!-- 8 Specialty Tiles Grid (Matching Original Screenshot 8 items) -->
+          <div class="grid grid-cols-4 gap-2 text-center">
+            <button onclick="switchScreen('screen-doctor-booking')" class="glass-card p-2.5 rounded-2xl spring-press">
+              <div class="w-9 h-9 mx-auto bg-purple-50 text-brand-primary rounded-xl flex items-center justify-center mb-1"><i data-lucide="brain" class="w-4 h-4"></i></div>
+              <div class="text-[10px] font-bold text-brand-offBlack">Neurology2</div>
+            </button>
+            <button onclick="switchScreen('screen-doctor-booking')" class="glass-card p-2.5 rounded-2xl spring-press">
+              <div class="w-9 h-9 mx-auto bg-purple-50 text-brand-primary rounded-xl flex items-center justify-center mb-1"><i data-lucide="activity" class="w-4 h-4"></i></div>
+              <div class="text-[10px] font-bold text-brand-offBlack">Neurology</div>
+            </button>
+            <button onclick="switchScreen('screen-doctor-booking')" class="glass-card p-2.5 rounded-2xl spring-press">
+              <div class="w-9 h-9 mx-auto bg-purple-50 text-brand-primary rounded-xl flex items-center justify-center mb-1"><i data-lucide="bone" class="w-4 h-4"></i></div>
+              <div class="text-[10px] font-bold text-brand-offBlack">Orthopedics</div>
+            </button>
+            <button onclick="switchScreen('screen-doctor-booking')" class="glass-card p-2.5 rounded-2xl spring-press">
+              <div class="w-9 h-9 mx-auto bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center mb-1"><i data-lucide="heart" class="w-4 h-4"></i></div>
+              <div class="text-[10px] font-bold text-brand-offBlack">Gynecology</div>
+            </button>
+            <button onclick="switchScreen('screen-doctor-booking')" class="glass-card p-2.5 rounded-2xl spring-press">
+              <div class="w-9 h-9 mx-auto bg-amber-50 text-amber-700 rounded-xl flex items-center justify-center mb-1"><i data-lucide="baby" class="w-4 h-4"></i></div>
+              <div class="text-[10px] font-bold text-brand-offBlack">Pediatrics</div>
+            </button>
+            <button onclick="switchScreen('screen-doctor-booking')" class="glass-card p-2.5 rounded-2xl spring-press">
+              <div class="w-9 h-9 mx-auto bg-purple-50 text-brand-primary rounded-xl flex items-center justify-center mb-1"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+              <div class="text-[10px] font-bold text-brand-offBlack">Dermatology</div>
+            </button>
+            <button onclick="switchScreen('screen-doctor-booking')" class="glass-card p-2.5 rounded-2xl spring-press">
+              <div class="w-9 h-9 mx-auto bg-red-50 text-rose-600 rounded-xl flex items-center justify-center mb-1"><i data-lucide="heart-pulse" class="w-4 h-4"></i></div>
+              <div class="text-[10px] font-bold text-brand-offBlack">Cardiology</div>
+            </button>
+            <button onclick="switchScreen('screen-doctor-booking')" class="glass-card p-2.5 rounded-2xl spring-press">
+              <div class="w-9 h-9 mx-auto bg-purple-50 text-brand-primary rounded-xl flex items-center justify-center mb-1"><i data-lucide="stethoscope" class="w-4 h-4"></i></div>
+              <div class="text-[10px] font-bold text-brand-offBlack">General MD</div>
+            </button>
+          </div>
+
+          <!-- Expert Second Opinion Banner -->
+          <div class="glass-card p-3.5 rounded-2xl flex items-center justify-between border-2 border-brand-primary/25">
+            <div>
+              <h4 class="text-xs font-black text-brand-offBlack">Expert Second Opinion</h4>
+              <p class="text-[10px] text-brand-textSecondary mt-0.5">Consult top specialists for your medical reports.</p>
+            </div>
+            <button onclick="switchScreen('screen-doctor-booking')" class="px-3 py-1.5 gradient-card-purple text-white text-[11px] font-bold rounded-xl shadow-purple-sm spring-press shrink-0">
+              Explore Doctors
+            </button>
+          </div>
+
+          <!-- Hashtags -->
+          <div class="flex gap-1.5 flex-wrap">
+            <span class="px-2.5 py-1 rounded-full glass-card text-[10px] font-bold text-brand-primary">#Diabetes</span>
+            <span class="px-2.5 py-1 rounded-full glass-card text-[10px] font-bold text-brand-primary">#Thyroid</span>
+            <span class="px-2.5 py-1 rounded-full glass-card text-[10px] font-bold text-brand-primary">#PCOD</span>
+            <span class="px-2.5 py-1 rounded-full glass-card text-[10px] font-bold text-brand-primary">#BloodPressure</span>
+            <span class="px-2.5 py-1 rounded-full glass-card text-[10px] font-bold text-brand-primary">#HeartHealth</span>
+          </div>
+
+          <!-- WHY CHOOSE US -->
+          <div>
+            <div class="text-[10px] font-black uppercase text-brand-primary tracking-wider mb-2 px-1">Why Choose Us</div>
+            <div class="glass-card p-3 rounded-2xl flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-purple-50 text-brand-primary flex items-center justify-center shrink-0">
+                <i data-lucide="shield-check" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h5 class="text-xs font-bold text-brand-offBlack">Verified Doctors</h5>
+                <p class="text-[10px] text-brand-textSecondary mt-0.5">100% verified and licensed medical practitioners across 30+ specialties.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- HOW IT WORKS (3 STEPS) -->
+          <div>
+            <div class="text-[10px] font-black uppercase text-brand-primary tracking-wider mb-2 px-1">How It Works</div>
+            <div class="glass-card p-3 rounded-2xl space-y-2.5 text-xs">
+              <div class="flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-brand-primary text-white text-[10px] font-black flex items-center justify-center shrink-0">1</span>
+                <div>
+                  <div class="font-bold text-brand-offBlack">Choose a Specialist</div>
+                  <div class="text-[10px] text-brand-textSecondary">Filter doctors by specialty, language, and experience.</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-purple-100 text-brand-primary text-[10px] font-black flex items-center justify-center shrink-0">2</span>
+                <div>
+                  <div class="font-bold text-brand-offBlack">Book Appointment</div>
+                  <div class="text-[10px] text-brand-textSecondary">Pick a convenient time slot and complete payment.</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-purple-100 text-brand-primary text-[10px] font-black flex items-center justify-center shrink-0">3</span>
+                <div>
+                  <div class="font-bold text-brand-offBlack">Consult &amp; Get Prescription</div>
+                  <div class="text-[10px] text-brand-textSecondary">Connect via video call and receive your digital prescription.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FREQUENTLY ASKED QUESTIONS -->
+          <div>
+            <div class="text-[10px] font-black uppercase text-brand-primary tracking-wider mb-2 px-1">Frequently Asked Questions</div>
+            <div class="glass-card rounded-2xl divide-y divide-purple-100/70 overflow-hidden text-xs">
+              <div class="p-3 flex items-center justify-between">
+                <span class="font-bold text-brand-offBlack text-[11px]">How do online doctor consultations work?</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-purple-400"></i>
+              </div>
+              <div class="p-3 flex items-center justify-between">
+                <span class="font-bold text-brand-offBlack text-[11px]">Will I receive a digital prescription?</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-purple-400"></i>
+              </div>
+              <div class="p-3 flex items-center justify-between">
+                <span class="font-bold text-brand-offBlack text-[11px]">Can I reschedule or cancel my appointment?</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-purple-400"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Book a Consultation CTA -->
+          <div class="pt-2">
+            <button onclick="switchScreen('screen-doctor-booking')" class="w-full py-3 gradient-card-purple text-white rounded-2xl text-xs font-black shadow-purple-glow flex items-center justify-center gap-2 spring-press">
+              <i data-lucide="calendar" class="w-4 h-4"></i> Book a Consultation
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SCREEN 3: DOCTOR DETAILS & VIDEO BOOKING (DR. RAHUL ORIGINAL MATCH)       -->
+      <!-- ========================================================================= -->
+      <div id="screen-doctor-booking" class="app-screen hidden flex-1 flex flex-col h-full overflow-hidden relative">
+        <!-- Top App Bar -->
+        <div class="h-12 px-4 flex items-center justify-between bg-white/85 backdrop-blur-xl shrink-0 border-b border-purple-100/60 z-30">
+          <div class="flex items-center gap-2">
+            <button onclick="switchScreen('screen-doctor-hub')" class="w-8 h-8 rounded-full hover:bg-purple-50 flex items-center justify-center text-brand-offBlack spring-press">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </button>
+            <h2 class="text-sm font-black text-brand-offBlack">View Details</h2>
+          </div>
+          <div class="flex items-center gap-2 text-slate-400">
+            <button class="hover:text-brand-primary"><i data-lucide="bookmark" class="w-4 h-4"></i></button>
+            <button class="hover:text-brand-primary"><i data-lucide="share-2" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto hide-scrollbar p-4 pb-28 space-y-3.5">
+          <!-- Doctor Profile Card -->
+          <div class="glass-card p-4 rounded-3xl">
+            <div class="flex items-start gap-3">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FBEEFF] to-[#E9CEF5] border border-purple-200 flex items-center justify-center text-brand-primary shrink-0 shadow-sm">
+                <i data-lucide="stethoscope" class="w-7 h-7 text-brand-primary"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-1.5">
+                  <h3 class="text-sm font-black text-brand-offBlack">Dr. Rahul</h3>
+                  <i data-lucide="badge-check" class="w-3.5 h-3.5 text-brand-secondary fill-brand-secondary text-white"></i>
+                </div>
+                <p class="text-[11px] text-brand-textSecondary mt-0.5">Cardiology</p>
+                <div class="flex items-center gap-3 mt-1.5 text-[10px] font-bold text-slate-600">
+                  <span>12+ YRS EXP</span>
+                  <span>•</span>
+                  <span class="inline-flex items-center gap-1 text-amber-700"><i data-lucide="star" class="w-2.5 h-2.5 fill-amber-500 text-amber-500"></i> 4.9 RATING</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chips -->
+            <div class="mt-3 flex gap-1.5 flex-wrap">
+              <span class="px-2 py-0.5 rounded-md bg-purple-50 text-brand-primary text-[9px] font-bold">HEART DISEASE</span>
+              <span class="px-2 py-0.5 rounded-md bg-purple-50 text-brand-primary text-[9px] font-bold">HYPERTENSION</span>
+              <span class="px-2 py-0.5 rounded-md bg-purple-50 text-brand-primary text-[9px] font-bold">CHEST PAIN</span>
+              <span class="px-2 py-0.5 rounded-md bg-purple-50 text-brand-primary text-[9px] font-bold">CHOLESTEROL</span>
+            </div>
+
+            <!-- Languages -->
+            <div class="mt-2 text-[10px] text-slate-500 flex items-center gap-1">
+              <i data-lucide="languages" class="w-3.5 h-3.5 text-purple-400"></i> Speaks: English, Hindi, Telugu
+            </div>
+          </div>
+
+          <!-- ABOUT DOCTOR -->
+          <div class="glass-card p-3.5 rounded-2xl text-xs space-y-1">
+            <div class="text-[10px] font-black uppercase text-brand-primary tracking-wider">About Doctor</div>
+            <p class="text-brand-textSecondary leading-relaxed text-[11px]">
+              Experienced cardiologist specializing in the diagnosis and treatment of cardiovascular conditions, hypertension, and heart-related disorders.
+              <span class="text-brand-primary font-bold cursor-pointer">Read More v</span>
+            </p>
+          </div>
+
+          <!-- CONSULTATION METHOD (₹720) -->
+          <div>
+            <div class="text-[10px] font-black uppercase text-brand-textSecondary tracking-wider mb-1 px-1">Consultation Method</div>
+            <div class="p-3.5 rounded-2xl border-2 border-brand-primary bg-white/95 shadow-sm flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-purple-50 text-brand-primary flex items-center justify-center"><i data-lucide="video" class="w-5 h-5"></i></div>
+                <div>
+                  <div class="text-xs font-black text-brand-offBlack">Video Consultation</div>
+                  <div class="text-[9.5px] text-brand-textSecondary">Secure, private video call</div>
+                </div>
+              </div>
+              <div class="text-right flex items-center gap-2">
+                <div>
+                  <div class="text-xs font-black text-brand-primary">₹720</div>
+                  <div class="text-[8.5px] text-slate-400">per session</div>
+                </div>
+                <div class="w-5 h-5 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-sm">
+                  <i data-lucide="check" class="w-3 h-3"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SELECT SLOT -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5 px-1">
+              <span class="text-xs font-black text-brand-offBlack uppercase tracking-wider">Select Slot</span>
+              <span class="text-[10px] font-bold text-brand-primary flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> Calendar</span>
+            </div>
+            <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+              <div class="w-16 py-2 rounded-2xl gradient-card-purple text-white text-center shadow-purple-sm shrink-0">
+                <div class="text-[9px] font-bold uppercase text-purple-200">Today</div>
+                <div class="text-base font-black">02</div>
+                <div class="text-[9px] font-semibold text-purple-200">Nov</div>
+              </div>
+              <div class="w-16 py-2 rounded-2xl glass-card text-center shrink-0 spring-press">
+                <div class="text-[9px] font-bold uppercase text-slate-400">Tomorrow</div>
+                <div class="text-base font-black text-brand-offBlack">03</div>
+                <div class="text-[9px] text-slate-400">Nov</div>
+              </div>
+              <div class="w-16 py-2 rounded-2xl glass-card text-center shrink-0 spring-press">
+                <div class="text-[9px] font-bold uppercase text-slate-400">Wed</div>
+                <div class="text-base font-black text-brand-offBlack">04</div>
+                <div class="text-[9px] text-slate-400">Nov</div>
+              </div>
+              <div class="w-16 py-2 rounded-2xl glass-card text-center shrink-0 spring-press">
+                <div class="text-[9px] font-bold uppercase text-slate-400">Thu</div>
+                <div class="text-base font-black text-brand-offBlack">05</div>
+                <div class="text-[9px] text-slate-400">Nov</div>
+              </div>
+              <div class="w-16 py-2 rounded-2xl glass-card text-center shrink-0 spring-press">
+                <div class="text-[9px] font-bold uppercase text-slate-400">Fri</div>
+                <div class="text-base font-black text-brand-offBlack">06</div>
+                <div class="text-[9px] text-slate-400">Nov</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shift Buttons -->
+          <div class="grid grid-cols-4 gap-1.5 text-center text-xs">
+            <button class="py-1.5 rounded-xl gradient-card-purple text-white font-bold shadow-sm">Morning</button>
+            <button class="py-1.5 rounded-xl glass-card font-medium text-slate-600">Afternoon</button>
+            <button class="py-1.5 rounded-xl glass-card font-medium text-slate-600">Evening</button>
+            <button class="py-1.5 rounded-xl glass-card font-medium text-slate-600">Night</button>
+          </div>
+
+          <!-- SELECT LANGUAGE -->
+          <div>
+            <div class="text-[10px] font-black uppercase text-brand-textSecondary tracking-wider mb-1 px-1">Select Language</div>
+            <div class="grid grid-cols-3 gap-2 text-xs">
+              <button class="py-1.5 rounded-xl glass-card font-medium text-slate-600">Telugu</button>
+              <button class="py-1.5 rounded-xl glass-card font-medium text-slate-600">Hindi</button>
+              <button class="py-1.5 rounded-xl gradient-card-purple text-white font-bold shadow-sm">English</button>
+            </div>
+          </div>
+
+          <!-- SELECT PERSON -->
+          <div>
+            <div class="text-[10px] font-black uppercase text-brand-textSecondary tracking-wider mb-1 px-1">Select Person</div>
+            <div class="glass-card p-2.5 rounded-xl flex items-center justify-between text-xs font-bold text-brand-offBlack">
+              <span>Myself</span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-purple-500"></i>
+            </div>
+          </div>
+
+          <!-- REASON FOR CONSULTATION -->
+          <div>
+            <label class="text-xs font-black text-brand-offBlack uppercase tracking-wider block mb-1 px-1">Reason for Consultation</label>
+            <textarea placeholder="E.g. Mild fever, persistent cough, chest pain for 2 days..." 
+              class="w-full h-16 p-3 glass-card rounded-2xl text-xs text-brand-offBlack focus:outline-none placeholder-slate-400 resize-none border border-purple-100"></textarea>
+          </div>
+
+          <!-- ATTACH REPORTS -->
+          <div class="glass-card p-3 rounded-2xl text-center border-dashed border-2 border-purple-200">
+            <button class="w-full py-2 gradient-card-purple text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-purple-sm">
+              <i data-lucide="upload" class="w-3.5 h-3.5"></i> Upload Reports
+            </button>
+            <p class="text-[9.5px] text-brand-textSecondary mt-1">Upload files or reports to help doctor provide an accurate diagnosis.</p>
+          </div>
+
+          <!-- Alert Banner -->
+          <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-[10px] flex items-start gap-2">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+            <span>Your doctor will review these documents before your appointment starts. Please ensure the files are clear and readable.</span>
+          </div>
+
+          <!-- Need Help Button -->
+          <div class="text-center pt-1">
+            <button class="text-xs font-bold text-brand-primary flex items-center justify-center gap-1 mx-auto">
+              <i data-lucide="headphones" class="w-3.5 h-3.5"></i> Need Help? Support
+            </button>
+          </div>
+        </div>
+
+        <!-- Sticky Bottom Bar -->
+        <div class="absolute bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-xl border-t border-purple-100/70 z-30 flex items-center justify-between">
+          <div>
+            <div class="text-[10px] text-brand-textSecondary font-semibold">Slot: Today, Morning</div>
+            <div class="text-base font-black text-brand-offBlack">₹720 <span class="text-[10px] text-slate-400 font-normal">Total Fee</span></div>
+          </div>
+          <button onclick="alert('Appointment Confirmed with Dr. Rahul!')" class="px-5 py-2.5 gradient-card-purple text-white rounded-2xl text-xs font-black shadow-purple-glow flex items-center gap-1.5 spring-press">
+            <i data-lucide="check-circle" class="w-4 h-4"></i> Confirm Appointment
+          </button>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SCREEN 4: PHARMACY STORE LANDING (DELIVER TO NGO COLONY ORIGINAL MATCH)   -->
+      <!-- ========================================================================= -->
+      <div id="screen-pharmacy-home" class="app-screen hidden flex-1 flex flex-col h-full overflow-hidden relative">
+        <!-- Top Wave Purple Header -->
+        <div class="gradient-hero-purple p-4 pt-11 pb-3 text-white shrink-0">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center font-black text-xs">NS</div>
+              <div>
+                <div class="text-[9px] text-purple-200 uppercase tracking-wide">Deliver to</div>
+                <div class="text-xs font-black flex items-center gap-1">NGO Colony <i data-lucide="chevron-down" class="w-3 h-3"></i></div>
+              </div>
+            </div>
+            <button onclick="switchScreen('screen-medicines')" class="relative w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+              <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+              <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 text-slate-900 font-black text-[9px] flex items-center justify-center">2</span>
+            </button>
+          </div>
+          <div class="relative mt-2">
+            <input type="text" placeholder="Search Medicine &amp; Healthcare products..." 
+              class="w-full h-9 pl-8 pr-4 rounded-xl bg-white text-xs text-brand-offBlack focus:outline-none placeholder-slate-400 shadow-sm">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-purple-500 absolute left-2.5 top-3"></i>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto hide-scrollbar p-4 pb-24 space-y-4">
+          <!-- Quick Services (4 Circular Icons with Purple Rings) -->
+          <div>
+            <div class="text-xs font-black text-brand-offBlack mb-2 uppercase tracking-wide">Quick Services</div>
+            <div class="grid grid-cols-4 gap-2 text-center">
+              <button onclick="switchScreen('screen-medicines')" class="flex flex-col items-center spring-press">
+                <div class="w-14 h-14 rounded-full border-2 border-brand-primary bg-white flex items-center justify-center mb-1 shadow-sm"><i data-lucide="shopping-cart" class="w-6 h-6 text-brand-primary"></i></div>
+                <div class="text-[10px] font-bold text-brand-offBlack">Medicines</div>
+              </button>
+              <button onclick="switchScreen('screen-doctor-hub')" class="flex flex-col items-center spring-press">
+                <div class="w-14 h-14 rounded-full border-2 border-brand-primary bg-white flex items-center justify-center mb-1 shadow-sm"><i data-lucide="laptop" class="w-6 h-6 text-brand-primary"></i></div>
+                <div class="text-[10px] font-bold text-brand-offBlack">Doctor Consult</div>
+              </button>
+              <button onclick="switchScreen('screen-lab-hub')" class="flex flex-col items-center spring-press">
+                <div class="w-14 h-14 rounded-full border-2 border-brand-primary bg-white flex items-center justify-center mb-1 shadow-sm"><i data-lucide="flask-conical" class="w-6 h-6 text-amber-600"></i></div>
+                <div class="text-[10px] font-bold text-brand-offBlack">Lab Test</div>
+              </button>
+              <button class="flex flex-col items-center spring-press">
+                <div class="w-14 h-14 rounded-full border-2 border-brand-primary bg-white flex items-center justify-center mb-1 shadow-sm"><i data-lucide="activity" class="w-6 h-6 text-brand-primary"></i></div>
+                <div class="text-[10px] font-bold text-brand-offBlack">Devices</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Pharmaceutical Medicine Banner -->
+          <div class="gradient-card-purple rounded-2xl p-4 text-white relative shadow-purple-sm overflow-hidden">
+            <div class="relative z-10">
+              <h4 class="text-sm font-black tracking-wide">PHARMACEUTICAL MEDICINE</h4>
+              <p class="text-[10px] text-purple-200 mt-0.5">Medical research and development</p>
+            </div>
+            <div class="flex justify-center gap-1.5 mt-3">
+              <span class="w-4 h-1 bg-white rounded-full"></span>
+              <span class="w-1.5 h-1 bg-white/40 rounded-full"></span>
+              <span class="w-1.5 h-1 bg-white/40 rounded-full"></span>
+            </div>
+          </div>
+
+          <!-- ORDER BY HEALTH CONCERN (6 Tiles Grid) -->
+          <div>
+            <div class="text-xs font-black text-brand-offBlack mb-2 uppercase tracking-wide">Order by Health Concern</div>
+            <div class="grid grid-cols-3 gap-2.5 text-center text-xs">
+              <button onclick="switchScreen('screen-medicines')" class="glass-card p-3 rounded-2xl spring-press">
+                <div class="w-10 h-10 mx-auto rounded-xl bg-purple-50 text-brand-primary flex items-center justify-center mb-1.5"><i data-lucide="activity" class="w-5 h-5"></i></div>
+                <div class="text-[10px] font-bold leading-tight">OTC &amp; Wellness</div>
+              </button>
+              <button onclick="switchScreen('screen-medicines')" class="glass-card p-3 rounded-2xl spring-press">
+                <div class="w-10 h-10 mx-auto rounded-xl bg-purple-50 text-brand-primary flex items-center justify-center mb-1.5"><i data-lucide="file-text" class="w-5 h-5"></i></div>
+                <div class="text-[10px] font-bold leading-tight">Prescription</div>
+              </button>
+              <button onclick="switchScreen('screen-medicines')" class="glass-card p-3 rounded-2xl spring-press">
+                <div class="w-10 h-10 mx-auto rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-1.5"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+                <div class="text-[10px] font-bold leading-tight">Gastro</div>
+              </button>
+              <button onclick="switchScreen('screen-medicines')" class="glass-card p-3 rounded-2xl spring-press">
+                <div class="w-10 h-10 mx-auto rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center mb-1.5"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
+                <div class="text-[10px] font-bold leading-tight">General Wellness</div>
+              </button>
+              <button onclick="switchScreen('screen-medicines')" class="glass-card p-3 rounded-2xl spring-press">
+                <div class="w-10 h-10 mx-auto rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-1.5"><i data-lucide="wind" class="w-5 h-5"></i></div>
+                <div class="text-[10px] font-bold leading-tight">Allergy</div>
+              </button>
+              <button onclick="switchScreen('screen-medicines')" class="glass-card p-3 rounded-2xl spring-press">
+                <div class="w-10 h-10 mx-auto rounded-xl bg-emerald-50 text-brand-success flex items-center justify-center mb-1.5"><i data-lucide="sun" class="w-5 h-5"></i></div>
+                <div class="text-[10px] font-bold leading-tight">Vitamins</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SCREEN 5: MEDICINES CATALOG (2-COLUMN GRID ORIGINAL MATCH)                -->
+      <!-- ========================================================================= -->
+      <div id="screen-medicines" class="app-screen hidden flex-1 flex flex-col h-full overflow-hidden relative">
+        <!-- Top App Bar -->
+        <div class="h-12 px-4 flex items-center justify-between bg-white/85 backdrop-blur-xl shrink-0 border-b border-purple-100/60 z-30">
+          <div class="flex items-center gap-2">
+            <button onclick="switchScreen('screen-pharmacy-home')" class="w-8 h-8 rounded-full hover:bg-purple-50 flex items-center justify-center text-brand-offBlack spring-press">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </button>
+            <h2 class="text-sm font-black text-brand-offBlack">Medicines</h2>
+          </div>
+          <button class="relative w-8 h-8 rounded-full hover:bg-purple-50 flex items-center justify-center text-brand-offBlack">
+            <i data-lucide="shopping-cart" class="w-4 h-4 text-brand-primary"></i>
+            <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
+          </button>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="px-4 py-2 border-b border-purple-100/50 bg-white/60 backdrop-blur-md flex gap-2 overflow-x-auto hide-scrollbar shrink-0">
+          <span class="px-3 py-1 rounded-full gradient-card-purple text-white text-[11px] font-bold shrink-0">All</span>
+          <span class="px-3 py-1 rounded-full glass-card text-[11px] font-bold text-slate-700 shrink-0">OTC &amp; Medicines</span>
+          <span class="px-3 py-1 rounded-full glass-card text-[11px] font-bold text-slate-700 shrink-0">Prescription</span>
+          <span class="px-3 py-1 rounded-full glass-card text-[11px] font-bold text-slate-700 shrink-0">Generic</span>
+          <span class="px-3 py-1 rounded-full glass-card text-[11px] font-bold text-slate-700 shrink-0">Wellness</span>
+        </div>
+
+        <!-- 2-Column Product Grid -->
+        <div class="flex-1 overflow-y-auto hide-scrollbar p-3.5 pb-24">
+          <div class="grid grid-cols-2 gap-2.5">
+            <!-- 1. Ibuprofen -->
+            <div class="glass-card p-3 rounded-2xl flex flex-col justify-between spring-press">
+              <div>
+                <span class="text-[8.5px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">15% OFF</span>
+                <div class="w-full h-16 bg-purple-50/60 rounded-xl flex items-center justify-center my-1.5"><i data-lucide="pill" class="w-8 h-8 text-brand-primary"></i></div>
+                <h5 class="text-xs font-bold text-brand-offBlack leading-tight">Ibuprofen 400mg</h5>
+                <p class="text-[9px] text-brand-textSecondary mt-0.5">Pain Relief • 10 tabs</p>
+              </div>
+              <div class="mt-2 pt-2 border-t border-purple-100/60 flex items-center justify-between">
+                <div><span class="text-xs font-black text-brand-offBlack">₹15</span> <span class="text-[9px] text-slate-400 line-through">₹18</span></div>
+                <button class="px-2.5 py-1 gradient-card-purple text-white text-xs font-black rounded-lg shadow-sm spring-press">+ Add</button>
+              </div>
+            </div>
+
+            <!-- 2. Omeprazole -->
+            <div class="glass-card p-3 rounded-2xl flex flex-col justify-between spring-press">
+              <div>
+                <span class="text-[8.5px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">10% OFF</span>
+                <div class="w-full h-16 bg-purple-50/60 rounded-xl flex items-center justify-center my-1.5"><i data-lucide="pill" class="w-8 h-8 text-brand-primary"></i></div>
+                <h5 class="text-xs font-bold text-brand-offBlack leading-tight">Omeprazole 20mg</h5>
+                <p class="text-[9px] text-brand-textSecondary mt-0.5">Antacid • 10 capsules</p>
+              </div>
+              <div class="mt-2 pt-2 border-t border-purple-100/60 flex items-center justify-between">
+                <div><span class="text-xs font-black text-brand-offBlack">₹25</span> <span class="text-[9px] text-slate-400 line-through">₹28</span></div>
+                <button class="px-2.5 py-1 gradient-card-purple text-white text-xs font-black rounded-lg shadow-sm spring-press">+ Add</button>
+              </div>
+            </div>
+
+            <!-- 3. Amlodipine -->
+            <div class="glass-card p-3 rounded-2xl flex flex-col justify-between spring-press">
+              <div>
+                <span class="text-[8.5px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">15% OFF</span>
+                <div class="w-full h-16 bg-purple-50/60 rounded-xl flex items-center justify-center my-1.5"><i data-lucide="tablet" class="w-8 h-8 text-brand-primary"></i></div>
+                <h5 class="text-xs font-bold text-brand-offBlack leading-tight">Amlodipine 5mg</h5>
+                <p class="text-[9px] text-brand-textSecondary mt-0.5">Cardio • 15 tablets</p>
+              </div>
+              <div class="mt-2 pt-2 border-t border-purple-100/60 flex items-center justify-between">
+                <div><span class="text-xs font-black text-brand-offBlack">₹22</span> <span class="text-[9px] text-slate-400 line-through">₹26</span></div>
+                <button class="px-2.5 py-1 gradient-card-purple text-white text-xs font-black rounded-lg shadow-sm spring-press">+ Add</button>
+              </div>
+            </div>
+
+            <!-- 4. Paracetamol -->
+            <div class="glass-card p-3 rounded-2xl flex flex-col justify-between spring-press">
+              <div>
+                <span class="text-[8.5px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">10% OFF</span>
+                <div class="w-full h-16 bg-purple-50/60 rounded-xl flex items-center justify-center my-1.5"><i data-lucide="pill" class="w-8 h-8 text-brand-primary"></i></div>
+                <h5 class="text-xs font-bold text-brand-offBlack leading-tight">Paracetamol 650mg</h5>
+                <p class="text-[9px] text-brand-textSecondary mt-0.5">Fever • 15 tablets</p>
+              </div>
+              <div class="mt-2 pt-2 border-t border-purple-100/60 flex items-center justify-between">
+                <div><span class="text-xs font-black text-brand-offBlack">₹18</span> <span class="text-[9px] text-slate-400 line-through">₹20</span></div>
+                <button class="px-2.5 py-1 gradient-card-purple text-white text-xs font-black rounded-lg shadow-sm spring-press">+ Add</button>
+              </div>
+            </div>
+
+            <!-- 5. Protein Powder -->
+            <div class="glass-card p-3 rounded-2xl flex flex-col justify-between spring-press">
+              <div>
+                <span class="text-[8.5px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">15% OFF</span>
+                <div class="w-full h-16 bg-emerald-50/60 rounded-xl flex items-center justify-center my-1.5"><i data-lucide="shield" class="w-8 h-8 text-brand-success"></i></div>
+                <h5 class="text-xs font-bold text-brand-offBlack leading-tight">Protein Powder Vanilla</h5>
+                <p class="text-[9px] text-brand-textSecondary mt-0.5">Whey Isolate • 400g</p>
+              </div>
+              <div class="mt-2 pt-2 border-t border-purple-100/60 flex items-center justify-between">
+                <div><span class="text-xs font-black text-brand-offBlack">₹314</span> <span class="text-[9px] text-slate-400 line-through">₹370</span></div>
+                <button class="px-2.5 py-1 gradient-card-purple text-white text-xs font-black rounded-lg shadow-sm spring-press">+ Add</button>
+              </div>
+            </div>
+
+            <!-- 6. Vitamin D3 -->
+            <div class="glass-card p-3 rounded-2xl flex flex-col justify-between spring-press">
+              <div>
+                <span class="text-[8.5px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">15% OFF</span>
+                <div class="w-full h-16 bg-amber-50/60 rounded-xl flex items-center justify-center my-1.5"><i data-lucide="sparkles" class="w-8 h-8 text-amber-600"></i></div>
+                <h5 class="text-xs font-bold text-brand-offBlack leading-tight">Vitamin D3 60K</h5>
+                <p class="text-[9px] text-brand-textSecondary mt-0.5">Bone Health • 4 Caps</p>
+              </div>
+              <div class="mt-2 pt-2 border-t border-purple-100/60 flex items-center justify-between">
+                <div><span class="text-xs font-black text-brand-offBlack">₹115</span> <span class="text-[9px] text-slate-400 line-through">₹135</span></div>
+                <button class="px-2.5 py-1 gradient-card-purple text-white text-xs font-black rounded-lg shadow-sm spring-press">+ Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Cart Bar -->
+        <div class="absolute bottom-4 left-3 right-3 z-40">
+          <div class="gradient-hero-purple text-white rounded-2xl p-3 px-4 shadow-xl flex items-center justify-between border border-white/20">
+            <div class="flex items-center gap-2.5">
+              <span class="w-6 h-6 rounded-full bg-amber-400 text-slate-900 text-xs font-black flex items-center justify-center shadow-sm">2</span>
+              <div>
+                <div class="text-xs font-black">₹749 TOTAL</div>
+                <div class="text-[9.5px] text-purple-200">2 items • Instant 10-Min Delivery</div>
+              </div>
+            </div>
+            <button onclick="switchScreen('screen-booking')" class="bg-white text-brand-primary px-3.5 py-1.5 rounded-xl text-xs font-black shadow-md flex items-center gap-1 spring-press">
+              CHECKOUT <i data-lucide="arrow-right" class="w-3 h-3 text-brand-primary"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SCREEN 6: LAB TESTS HUB / LANDING (MATCHING ORIGINAL SCREENSHOT)          -->
+      <!-- ========================================================================= -->
+      <div id="screen-lab-hub" class="app-screen hidden flex-1 flex flex-col h-full overflow-hidden relative">
+        <!-- Top App Bar -->
+        <div class="h-12 px-4 flex items-center justify-between bg-white/85 backdrop-blur-xl shrink-0 border-b border-purple-100/60 z-30">
+          <div class="flex items-center gap-2">
+            <button onclick="switchScreen('screen-home')" class="w-8 h-8 rounded-full hover:bg-purple-50 flex items-center justify-center text-brand-offBlack spring-press">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </button>
+            <h2 class="text-sm font-black text-brand-offBlack">Lab Tests</h2>
+          </div>
+          <div class="flex items-center gap-2 text-brand-offBlack">
+            <button><i data-lucide="search" class="w-4 h-4"></i></button>
+            <button onclick="switchScreen('screen-booking')"><i data-lucide="shopping-cart" class="w-4 h-4 text-brand-primary"></i></button>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto hide-scrollbar p-4 pb-28 space-y-4">
+          <!-- Hero Banner: Lab Tests at Your Doorstep -->
+          <div class="gradient-card-purple rounded-2xl p-4 text-white relative shadow-purple-sm">
+            <h3 class="text-sm font-black">Lab Tests at Your Doorstep</h3>
+            <p class="text-[10px] text-purple-200 mt-0.5">Starting at ₹199 • Free sample pickup</p>
+            <div class="flex items-center gap-2 mt-3">
+              <button onclick="switchScreen('screen-booking')" class="px-3 py-1 bg-white text-brand-primary text-xs font-black rounded-lg shadow-sm">Consult Now</button>
+              <span class="text-[9px] bg-white/20 px-2 py-0.5 rounded-full">Private</span>
+              <span class="text-[9px] bg-white/20 px-2 py-0.5 rounded-full">Trusted</span>
+            </div>
+          </div>
+
+          <!-- Most Booked Carousel -->
+          <div>
+            <div class="text-xs font-black text-brand-offBlack mb-2 uppercase tracking-wide">Most Booked</div>
+            <div class="flex gap-2.5 overflow-x-auto hide-scrollbar pb-1">
+              <div class="w-36 shrink-0 glass-card p-3 rounded-2xl">
+                <span class="text-[8.5px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">Most Booked</span>
+                <h5 class="text-xs font-bold text-brand-offBlack mt-1.5">CBC Test</h5>
+                <p class="text-[9px] text-brand-textSecondary">9 Parameters</p>
+                <div class="mt-2 flex items-center justify-between">
+                  <span class="text-xs font-black text-brand-offBlack">₹199</span>
+                  <button onclick="switchScreen('screen-booking')" class="px-2 py-0.5 gradient-card-purple text-white text-[10px] font-bold rounded-md">+ Add</button>
+                </div>
+              </div>
+              <div class="w-36 shrink-0 glass-card p-3 rounded-2xl">
+                <span class="text-[8.5px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">Trending</span>
+                <h5 class="text-xs font-bold text-brand-offBlack mt-1.5">Thyroid Panel</h5>
+                <p class="text-[9px] text-brand-textSecondary">3 Parameters</p>
+                <div class="mt-2 flex items-center justify-between">
+                  <span class="text-xs font-black text-brand-offBlack">₹299</span>
+                  <button onclick="switchScreen('screen-booking')" class="px-2 py-0.5 gradient-card-purple text-white text-[10px] font-bold rounded-md">+ Add</button>
+                </div>
+              </div>
+              <div class="w-36 shrink-0 glass-card p-3 rounded-2xl">
+                <span class="text-[8.5px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">Trending</span>
+                <h5 class="text-xs font-bold text-brand-offBlack mt-1.5">Lipid Profile</h5>
+                <p class="text-[9px] text-brand-textSecondary">8 Parameters</p>
+                <div class="mt-2 flex items-center justify-between">
+                  <span class="text-xs font-black text-brand-offBlack">₹399</span>
+                  <button onclick="switchScreen('screen-booking')" class="px-2 py-0.5 gradient-card-purple text-white text-[10px] font-bold rounded-md">+ Add</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabs: Top Concerns vs By Symptoms -->
+          <div class="flex p-1 bg-white/80 backdrop-blur-md rounded-2xl border border-purple-100/80 text-xs font-bold">
+            <button class="flex-1 py-1.5 rounded-xl gradient-card-purple text-white shadow-sm text-center">Top Concerns</button>
+            <button class="flex-1 py-1.5 rounded-xl text-slate-500 text-center">By Symptoms</button>
+          </div>
+
+          <!-- 6 Specialty Icons -->
+          <div class="grid grid-cols-3 gap-2 text-center text-xs">
+            <button onclick="switchScreen('screen-tests')" class="glass-card p-2.5 rounded-2xl spring-press">
+              <div class="w-8 h-8 mx-auto bg-purple-50 text-brand-primary rounded-xl flex items-center justify-center mb-1"><i data-lucide="user" class="w-4 h-4"></i></div>
+              <div class="text-[10px] font-bold">General Physician</div>
+            </button>
+            <button onclick="switchScreen('screen-tests')" class="glass-card p-2.5 rounded-2xl spring-press">
+              <div class="w-8 h-8 mx-auto bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center mb-1"><i data-lucide="heart" class="w-4 h-4"></i></div>
+              <div class="text-[10px] font-bold">Women's Health</div>
+            </button>
+            <button onclick="switchScreen('screen-tests')" class="glass-card p-2.5 rounded-2xl spring-press">
+              <div class="w-8 h-8 mx-auto bg-purple-50 text-brand-primary rounded-xl flex items-center justify-center mb-1"><i data-lucide="droplet" class="w-4 h-4"></i></div>
+              <div class="text-[10px] font-bold">Digestive Issues</div>
+            </button>
+            <button onclick="switchScreen('screen-tests')" class="glass-card p-2.5 rounded-2xl spring-press">
+              <div class="w-8 h-8 mx-auto bg-purple-50 text-brand-primary rounded-xl flex items-center justify-center mb-1"><i data-lucide="baby" class="w-4 h-4"></i></div>
+              <div class="text-[10px] font-bold">Child Care</div>
+            </button>
+            <button onclick="switchScreen('screen-tests')" class="glass-card p-2.5 rounded-2xl spring-press">
+              <div class="w-8 h-8 mx-auto bg-purple-50 text-brand-primary rounded-xl flex items-center justify-center mb-1"><i data-lucide="scissors" class="w-4 h-4"></i></div>
+              <div class="text-[10px] font-bold">Skin &amp; Hair</div>
+            </button>
+            <button onclick="switchScreen('screen-tests')" class="glass-card p-2.5 rounded-2xl spring-press">
+              <div class="w-8 h-8 mx-auto bg-red-50 text-rose-600 rounded-xl flex items-center justify-center mb-1"><i data-lucide="heart-pulse" class="w-4 h-4"></i></div>
+              <div class="text-[10px] font-bold">Heart Health</div>
+            </button>
+          </div>
+
+          <!-- Comprehensive Packages -->
+          <div class="space-y-3">
+            <div class="glass-card p-3.5 rounded-2xl border-2 border-brand-primary/20">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-[8.5px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">Most Booked</span>
+                  <h4 class="text-xs font-black text-brand-offBlack mt-1">Comprehensive Diabetic Care Package</h4>
+                  <p class="text-[10px] text-brand-textSecondary">4 Parameters • Fasting Blood Sugar • HbA1c</p>
+                </div>
+                <div class="text-right">
+                  <div class="text-xs font-black text-brand-offBlack">₹899</div>
+                  <div class="text-[9px] text-slate-400 line-through">₹1600</div>
+                </div>
+              </div>
+              <button onclick="switchScreen('screen-booking')" class="w-full mt-2.5 py-2 gradient-card-purple text-white text-xs font-bold rounded-xl shadow-purple-sm">
+                Book This Package
+              </button>
+            </div>
+
+            <div class="glass-card p-3.5 rounded-2xl">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-[8.5px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">Trending</span>
+                  <h4 class="text-xs font-black text-brand-offBlack mt-1">Full Body Wellness Screening</h4>
+                  <p class="text-[10px] text-brand-textSecondary">8 Parameters • Vitamin D • Lipid Profile</p>
+                </div>
+                <div class="text-right">
+                  <div class="text-xs font-black text-brand-offBlack">₹1999</div>
+                  <div class="text-[9px] text-slate-400 line-through">₹3500</div>
+                </div>
+              </div>
+              <button onclick="switchScreen('screen-booking')" class="w-full mt-2.5 py-2 bg-white border-2 border-brand-primary text-brand-primary text-xs font-bold rounded-xl shadow-sm">
+                Book This Package
+              </button>
+            </div>
+          </div>
+
+          <!-- CTA: Book a Consultation -->
+          <div class="pt-2">
+            <button onclick="switchScreen('screen-doctor-hub')" class="w-full py-3 gradient-card-purple text-white rounded-2xl text-xs font-black shadow-purple-glow flex items-center justify-center gap-2 spring-press">
+              <i data-lucide="calendar" class="w-4 h-4"></i> Book a Consultation
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SCREEN 7: LAB TESTS CATALOG (LIST VIEW MATCHING ORIGINAL SCREENSHOT)       -->
+      <!-- ========================================================================= -->
+      <div id="screen-tests" class="app-screen hidden flex-1 flex flex-col h-full overflow-hidden relative">
+        <!-- Top App Bar -->
+        <div class="h-12 px-4 flex items-center justify-between bg-white/85 backdrop-blur-xl shrink-0 border-b border-purple-100/60 z-30">
+          <div class="flex items-center gap-2">
+            <button onclick="switchScreen('screen-lab-hub')" class="w-8 h-8 rounded-full hover:bg-purple-50 flex items-center justify-center text-brand-offBlack spring-press">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </button>
+            <h2 class="text-sm font-black text-brand-offBlack">Lab Tests</h2>
+          </div>
+          <div class="flex items-center gap-2 text-brand-offBlack">
+            <button><i data-lucide="search" class="w-4 h-4"></i></button>
+            <button onclick="switchScreen('screen-booking')"><i data-lucide="shopping-cart" class="w-4 h-4 text-brand-primary"></i></button>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto hide-scrollbar p-4 pb-24 space-y-3">
+          <!-- Flat 60% OFF Banner -->
+          <div class="gradient-card-purple rounded-2xl p-3.5 text-white flex items-center justify-between shadow-purple-sm">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center"><i data-lucide="percent" class="w-5 h-5"></i></div>
+              <div>
+                <div class="text-xs font-black">Flat 60% OFF on all packages!</div>
+                <div class="text-[10px] text-purple-200">Free sample pickup • Certified Labs</div>
+              </div>
+            </div>
+            <button class="px-2.5 py-1 bg-white text-brand-primary rounded-lg text-[10px] font-black shadow-sm">Grab Deal</button>
+          </div>
+
+          <!-- Category Chips -->
+          <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-0.5">
+            <span class="px-3 py-1.5 rounded-full gradient-card-purple text-white text-[11px] font-bold shadow-purple-sm shrink-0">All</span>
+            <span class="px-3 py-1.5 rounded-full glass-card text-[11px] font-bold text-slate-700 shrink-0">Full Body</span>
+            <span class="px-3 py-1.5 rounded-full glass-card text-[11px] font-bold text-slate-700 shrink-0">Fever</span>
+            <span class="px-3 py-1.5 rounded-full glass-card text-[11px] font-bold text-slate-700 shrink-0">Diabetes</span>
+            <span class="px-3 py-1.5 rounded-full glass-card text-[11px] font-bold text-slate-700 shrink-0">Women</span>
+          </div>
+
+          <!-- Diagnostic Tests List (All 10 Real Items from Original Screenshot) -->
+          <div class="space-y-2.5">
+            <!-- 1. CBC -->
+            <div class="glass-card p-3 rounded-2xl">
+              <div class="flex items-start justify-between">
+                <div class="flex gap-2.5">
+                  <div class="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-brand-primary shrink-0">
+                    <i data-lucide="flask-conical" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <span class="text-[8.5px] font-bold uppercase text-brand-primary bg-purple-50 px-1.5 py-0.5 rounded">Most Booked</span>
+                    <h4 class="text-xs font-extrabold text-brand-offBlack mt-0.5">Complete Blood Count (CBC)</h4>
+                    <p class="text-[9.5px] text-brand-textSecondary flex items-center gap-1 mt-0.5"><span>Routine blood profile</span> • <i data-lucide="star" class="w-2.5 h-2.5 fill-amber-400 text-amber-400"></i><span>4.2</span> • <span>33 Tests</span> • <span>11 HRS</span> • <span>Home Sample</span></p>
+                  </div>
+                </div>
+                <i data-lucide="heart" class="w-4 h-4 text-slate-300"></i>
+              </div>
+              <div class="mt-2 pt-2 border-t border-purple-100/60 flex items-center justify-between">
+                <div><span class="text-xs font-black text-brand-offBlack">₹199</span> <span class="text-[9.5px] text-slate-400 line-through">₹500</span> <span class="text-[9px] font-bold text-emerald-600">50% OFF</span></div>
+                <button onclick="switchScreen('screen-booking')" class="px-3 py-1 gradient-card-purple text-white rounded-lg text-xs font-bold shadow-sm">+ Add</button>
+              </div>
+            </div>
+
+            <!-- 2. ESR -->
+            <div class="glass-card p-3 rounded-2xl">
+              <div class="flex items-start justify-between">
+                <div class="flex gap-2.5">
+                  <div class="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-brand-primary shrink-0">
+                    <i data-lucide="activity" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <span class="text-[8.5px] font-bold uppercase text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">Trending</span>
+                    <h4 class="text-xs font-extrabold text-brand-offBlack mt-0.5">Erythrocyte Sedimentation Rate (ESR)</h4>
+                    <p class="text-[9.5px] text-brand-textSecondary flex items-center gap-1 mt-0.5"><span>General inflammation check</span> • <i data-lucide="star" class="w-2.5 h-2.5 fill-amber-400 text-amber-400"></i><span>4.0</span> • <span>11 HRS Turnaround</span></p>
+                  </div>
+                </div>
+                <i data-lucide="heart" class="w-4 h-4 text-slate-300"></i>
+              </div>
+              <div class="mt-2 pt-2 border-t border-purple-100/60 flex items-center justify-between">
+                <div><span class="text-xs font-black text-brand-offBlack">₹150</span> <span class="text-[9.5px] text-slate-400 line-through">₹250</span></div>
+                <button onclick="switchScreen('screen-booking')" class="px-3 py-1 gradient-card-purple text-white rounded-lg text-xs font-bold shadow-sm">+ Add</button>
+              </div>
+            </div>
+
+            <!-- 3. FBS -->
+            <div class="glass-card p-3 rounded-2xl">
+              <div class="flex items-start justify-between">
+                <div class="flex gap-2.5">
+                  <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-700 shrink-0">
+                    <i data-lucide="droplet" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <span class="text-[8.5px] font-bold uppercase text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded">Fasting</span>
+                    <h4 class="text-xs font-extrabold text-brand-offBlack mt-0.5">Fasting Blood Sugar (FBS)</h4>
+                    <p class="text-[9.5px] text-brand-textSecondary flex items-center gap-1 mt-0.5"><span>Blood glucose after overnight fasting</span> • <i data-lucide="star" class="w-2.5 h-2.5 fill-amber-400 text-amber-400"></i><span>4.5</span></p>
+                  </div>
+                </div>
+                <i data-lucide="heart" class="w-4 h-4 text-slate-300"></i>
+              </div>
+              <div class="mt-2 pt-2 border-t border-purple-100/60 flex items-center justify-between">
+                <div><span class="text-xs font-black text-brand-offBlack">₹100</span> <span class="text-[9.5px] text-slate-400 line-through">₹200</span></div>
+                <button onclick="switchScreen('screen-booking')" class="px-3 py-1 gradient-card-purple text-white rounded-lg text-xs font-bold shadow-sm">+ Add</button>
+              </div>
+            </div>
+
+            <!-- 4. Thyroid Profile -->
+            <div class="glass-card p-3 rounded-2xl border-2 border-brand-primary/25">
+              <div class="flex items-start justify-between">
+                <div class="flex gap-2.5">
+                  <div class="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-brand-primary shrink-0">
+                    <i data-lucide="microscope" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <span class="text-[8.5px] font-bold uppercase text-brand-primary bg-purple-50 px-1.5 py-0.5 rounded">Thyroid &amp; Hormones</span>
+                    <h4 class="text-xs font-extrabold text-brand-offBlack mt-0.5">Thyroid Profile (T3, T4, TSH)</h4>
+                    <p class="text-[9.5px] text-brand-textSecondary flex items-center gap-1 mt-0.5"><span>Comprehensive thyroid screening</span> • <i data-lucide="star" class="w-2.5 h-2.5 fill-amber-400 text-amber-400"></i><span>4.8</span> • <span>11 HRS</span></p>
+                  </div>
+                </div>
+                <i data-lucide="heart" class="w-4 h-4 text-slate-300"></i>
+              </div>
+              <div class="mt-2 pt-2 border-t border-purple-100/60 flex items-center justify-between">
+                <div><span class="text-xs font-black text-brand-offBlack">₹550</span> <span class="text-[9.5px] text-slate-400 line-through">₹800</span></div>
+                <button onclick="switchScreen('screen-booking')" class="px-3 py-1 bg-white border border-brand-primary text-brand-primary rounded-lg text-xs font-bold shadow-sm">View &amp; Book</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SCREEN 8: LAB TEST DETAILS & SLOT BOOKING (MATCHING ORIGINAL SCREENSHOT)  -->
+      <!-- ========================================================================= -->
+      <div id="screen-booking" class="app-screen hidden flex-1 flex flex-col h-full overflow-hidden relative">
+        <!-- Top App Bar -->
+        <div class="h-12 px-4 flex items-center justify-between bg-white/85 backdrop-blur-xl shrink-0 border-b border-purple-100/60 z-30">
+          <div class="flex items-center gap-2">
+            <button onclick="switchScreen('screen-tests')" class="w-8 h-8 rounded-full hover:bg-purple-50 flex items-center justify-center text-brand-offBlack spring-press">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </button>
+            <h2 class="text-sm font-black text-brand-offBlack">View Details</h2>
+          </div>
+          <div class="flex items-center gap-2 text-slate-400">
+            <button><i data-lucide="bookmark" class="w-4 h-4"></i></button>
+            <button><i data-lucide="share-2" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto hide-scrollbar p-4 pb-28 space-y-3.5">
+          <!-- Main Test Card -->
+          <div class="glass-card p-4 rounded-3xl">
+            <div class="flex items-start justify-between">
+              <div class="flex gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FBEEFF] to-[#E9CEF5] border border-purple-200 flex items-center justify-center text-brand-primary shrink-0 shadow-sm">
+                  <i data-lucide="flask-conical" class="w-6 h-6"></i>
+                </div>
+                <div>
+                  <h3 class="text-sm font-black text-brand-offBlack">Thyroid Profile (T3, T4, TSH)</h3>
+                  <p class="text-[10px] text-brand-textSecondary mt-0.5">Thyroid &amp; Hormones • 1 Test Panel</p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3 flex items-center gap-2 text-[10px] text-slate-600 font-semibold">
+              <span class="inline-flex items-center gap-1 bg-purple-50 text-brand-primary px-2 py-0.5 rounded-md"><i data-lucide="home" class="w-3 h-3"></i> Home Sample Collection</span>
+              <span class="inline-flex items-center gap-1 bg-purple-50 text-brand-primary px-2 py-0.5 rounded-md"><i data-lucide="clock" class="w-3 h-3"></i> 11 HRS Turnaround</span>
+            </div>
+            <div class="mt-3 pt-3 border-t border-purple-100/60 flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md"><i data-lucide="check" class="w-3 h-3"></i> In Cart</span>
+              <button class="text-[10px] font-bold text-rose-600 border border-rose-200 px-2.5 py-0.5 rounded-md">Remove from Cart</button>
+            </div>
+          </div>
+
+          <!-- Tests in Cart (1) -->
+          <div class="glass-card p-3 rounded-2xl">
+            <div class="flex items-center justify-between text-xs font-bold mb-2">
+              <span class="text-brand-offBlack">Tests in Cart (1)</span>
+              <button onclick="switchScreen('screen-tests')" class="text-brand-primary text-[10px]">+ Add More</button>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-purple-50/50 border border-purple-100/80">
+              <div class="flex items-center gap-2">
+                <i data-lucide="flask-conical" class="w-4 h-4 text-brand-primary"></i>
+                <span class="text-xs font-bold text-brand-offBlack">Thyroid Profile (T3, T4, TSH)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-black text-brand-offBlack">₹550</span>
+                <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-500 cursor-pointer"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Spec Grid (4 tiles matching original screenshot) -->
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="glass-card p-2.5 rounded-xl">
+              <div class="text-[9.5px] text-brand-textSecondary flex items-center gap-1"><i data-lucide="flask-conical" class="w-3 h-3 text-brand-primary"></i> Tests Included</div>
+              <div class="font-extrabold text-brand-offBlack mt-0.5">1 Test</div>
+            </div>
+            <div class="glass-card p-2.5 rounded-xl">
+              <div class="text-[9.5px] text-brand-textSecondary flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3 text-brand-primary"></i> Reports Within</div>
+              <div class="font-extrabold text-brand-offBlack mt-0.5">12–24 Hours</div>
+            </div>
+            <div class="glass-card p-2.5 rounded-xl">
+              <div class="text-[9.5px] text-brand-textSecondary flex items-center gap-1"><i data-lucide="droplet" class="w-3 h-3 text-rose-500"></i> Sample Type</div>
+              <div class="font-extrabold text-brand-offBlack mt-0.5">Blood (Serum)</div>
+            </div>
+            <div class="glass-card p-2.5 rounded-xl">
+              <div class="text-[9.5px] text-brand-textSecondary flex items-center gap-1"><i data-lucide="sun" class="w-3 h-3 text-amber-500"></i> Fasting Required</div>
+              <div class="font-extrabold text-brand-offBlack mt-0.5">Morning Fasting</div>
+            </div>
+          </div>
+
+          <!-- SELECT SLOT -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-black text-brand-offBlack uppercase tracking-wider">Select Slot</span>
+              <span class="text-[11px] font-bold text-brand-primary flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> Calendar</span>
+            </div>
+            <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+              <div class="w-16 py-2 rounded-2xl gradient-card-purple text-white text-center shadow-purple-sm shrink-0">
+                <div class="text-[9px] font-bold uppercase text-purple-200">Today</div>
+                <div class="text-base font-black">02</div>
+                <div class="text-[9px] font-semibold text-purple-200">Nov</div>
+              </div>
+              <div class="w-16 py-2 rounded-2xl glass-card text-center shrink-0 spring-press">
+                <div class="text-[9px] font-bold uppercase text-slate-400">Tomorrow</div>
+                <div class="text-base font-black text-brand-offBlack">03</div>
+                <div class="text-[9px] text-slate-400">Nov</div>
+              </div>
+              <div class="w-16 py-2 rounded-2xl glass-card text-center shrink-0 spring-press">
+                <div class="text-[9px] font-bold uppercase text-slate-400">Wed</div>
+                <div class="text-base font-black text-brand-offBlack">04</div>
+                <div class="text-[9px] text-slate-400">Nov</div>
+              </div>
+              <div class="w-16 py-2 rounded-2xl glass-card text-center shrink-0 spring-press">
+                <div class="text-[9px] font-bold uppercase text-slate-400">Thu</div>
+                <div class="text-base font-black text-brand-offBlack">05</div>
+                <div class="text-[9px] text-slate-400">Nov</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Time Slots -->
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="p-2.5 rounded-xl border-2 border-brand-primary bg-purple-50 font-bold text-brand-primary text-center">07:00 AM - 08:00 AM</div>
+            <div class="p-2.5 rounded-xl glass-card font-medium text-slate-600 text-center">08:00 AM - 09:00 AM</div>
+          </div>
+
+          <!-- REASON FOR CONSULTATION -->
+          <div>
+            <label class="text-xs font-black text-brand-offBlack uppercase tracking-wider block mb-1">Reason for Consultation</label>
+            <textarea placeholder="E.g. Mild fever, persistent cough, thyroid checkup..." 
+              class="w-full h-16 p-3 glass-card rounded-2xl text-xs text-brand-offBlack focus:outline-none placeholder-slate-400 resize-none border border-purple-100"></textarea>
+          </div>
+
+          <!-- ATTACH REPORTS -->
+          <div class="glass-card p-3 rounded-2xl text-center border-dashed border-2 border-purple-200">
+            <button class="w-full py-2 gradient-card-purple text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-purple-sm">
+              <i data-lucide="upload" class="w-3.5 h-3.5"></i> Upload Reports
+            </button>
+            <p class="text-[9.5px] text-brand-textSecondary mt-1">Doctor will review these before your appointment starts.</p>
+          </div>
+
+          <!-- Alert Note -->
+          <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-[10px] flex items-start gap-2">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+            <span>Your doctor will review these documents before your appointment starts. Please ensure the files are clear and readable.</span>
+          </div>
+        </div>
+
+        <!-- Sticky Bottom Bar -->
+        <div class="absolute bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-xl border-t border-purple-100/70 z-30 flex items-center justify-between">
+          <div>
+            <div class="text-[10px] text-brand-textSecondary font-semibold">Slot: 2 Nov, 07:00 AM</div>
+            <div class="text-base font-black text-brand-offBlack">₹550 <span class="text-[10px] text-slate-400 font-normal">Total Fee</span></div>
+          </div>
+          <button onclick="alert('Booking Confirmed for Navaneeth S!')" class="px-5 py-2.5 gradient-card-purple text-white rounded-2xl text-xs font-black shadow-purple-glow flex items-center gap-1.5 spring-press">
+            <i data-lucide="check-circle" class="w-4 h-4"></i> Book Now
+          </button>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SCREEN 9: ACCOUNT SETTINGS / PROFILE (ALL ORIGINAL SECTIONS & ROWS)       -->
+      <!-- ========================================================================= -->
+      <div id="screen-profile" class="app-screen hidden flex-1 flex flex-col h-full overflow-hidden relative">
+        <div class="flex-1 overflow-y-auto hide-scrollbar pb-24">
+          <!-- Profile Top Header -->
+          <div class="gradient-hero-purple p-5 pt-11 pb-7 text-white rounded-b-[36px] shadow-purple-glow">
+            <div class="flex items-center justify-between mb-4">
+              <button onclick="switchScreen('screen-home')" class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white spring-press">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              </button>
+              <h2 class="text-sm font-black">Account Settings</h2>
+              <div class="w-8 h-8"></div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border-2 border-white/80 flex items-center justify-center font-black text-base shadow-md">
+                  NS
+                </div>
+                <div>
+                  <h3 class="text-base font-extrabold leading-tight">Navaneeth S</h3>
+                  <p class="text-xs text-purple-200">6303596001</p>
+                  <p class="text-[10px] text-purple-200">navaneeth@gmail.com</p>
+                </div>
+              </div>
+              <button class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- All Sections Matching Original Screenshot -->
+          <div class="p-4 space-y-4">
+            <!-- 1. HEALTH & SERVICES -->
+            <div>
+              <div class="text-[10px] font-black uppercase text-brand-textSecondary tracking-wider mb-2 px-1">Health &amp; Services</div>
+              <div class="glass-card rounded-2xl divide-y divide-purple-100/60 overflow-hidden text-xs">
+                <div onclick="switchScreen('screen-medicines')" class="p-3 flex items-center justify-between spring-press cursor-pointer">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-purple-50 text-brand-primary flex items-center justify-center"><i data-lucide="shopping-bag" class="w-4 h-4"></i></div>
+                    <div>
+                      <div class="font-bold text-brand-offBlack">My Orders</div>
+                      <div class="text-[9.5px] text-brand-textSecondary">Active orders, past prescriptions &amp; status</div>
+                    </div>
+                  </div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                </div>
+                <div onclick="switchScreen('screen-doctor-hub')" class="p-3 flex items-center justify-between spring-press cursor-pointer">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-purple-50 text-brand-primary flex items-center justify-center"><i data-lucide="stethoscope" class="w-4 h-4"></i></div>
+                    <div>
+                      <div class="font-bold text-brand-offBlack">My Consultations</div>
+                      <div class="text-[9.5px] text-brand-textSecondary">Doctor appointments &amp; digital prescriptions</div>
+                    </div>
+                  </div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                </div>
+                <div class="p-3 flex items-center justify-between spring-press cursor-pointer">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center"><i data-lucide="clipboard-list" class="w-4 h-4"></i></div>
+                    <div>
+                      <div class="font-bold text-brand-offBlack">Medical Details</div>
+                      <div class="text-[9.5px] text-brand-textSecondary">Vitals, allergies, surgeries &amp; conditions</div>
+                    </div>
+                  </div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                </div>
+                <div onclick="switchScreen('screen-tests')" class="p-3 flex items-center justify-between spring-press cursor-pointer">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center"><i data-lucide="file-text" class="w-4 h-4"></i></div>
+                    <div>
+                      <div class="font-bold text-brand-offBlack">Reports</div>
+                      <div class="text-[9.5px] text-brand-textSecondary">Lab test reports &amp; PDF downloads</div>
+                    </div>
+                  </div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                </div>
+                <div class="p-3 flex items-center justify-between spring-press cursor-pointer">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center"><i data-lucide="bookmark" class="w-4 h-4"></i></div>
+                    <div>
+                      <div class="font-bold text-brand-offBlack">Saved for later</div>
+                      <div class="text-[9.5px] text-brand-textSecondary">Bookmarked items &amp; wishlist</div>
+                    </div>
+                  </div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. PAYMENTS & WALLET -->
+            <div>
+              <div class="text-[10px] font-black uppercase text-brand-textSecondary tracking-wider mb-2 px-1">Payments &amp; Wallet</div>
+              <div class="glass-card rounded-2xl divide-y divide-purple-100/60 overflow-hidden text-xs">
+                <div class="p-3 flex items-center justify-between spring-press cursor-pointer">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"><i data-lucide="wallet" class="w-4 h-4"></i></div>
+                    <div>
+                      <div class="font-bold text-brand-offBlack">My Wallet</div>
+                      <div class="text-[9.5px] text-brand-textSecondary">Balance, top-up &amp; rewards</div>
+                    </div>
+                  </div>
+                  <span class="text-xs font-black text-brand-primary">₹1,250</span>
+                </div>
+                <div class="p-3 flex items-center justify-between spring-press cursor-pointer">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-purple-50 text-brand-primary flex items-center justify-center"><i data-lucide="receipt" class="w-4 h-4"></i></div>
+                    <div>
+                      <div class="font-bold text-brand-offBlack">Transactions History</div>
+                      <div class="text-[9.5px] text-brand-textSecondary">Invoices, refunds &amp; payment logs</div>
+                    </div>
+                  </div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. ACCOUNT PREFERENCES -->
+            <div>
+              <div class="text-[10px] font-black uppercase text-brand-textSecondary tracking-wider mb-2 px-1">Account Preferences</div>
+              <div class="glass-card rounded-2xl divide-y divide-purple-100/60 overflow-hidden text-xs">
+                <div class="p-3 flex items-center justify-between spring-press cursor-pointer">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-purple-50 text-brand-primary flex items-center justify-center"><i data-lucide="map-pin" class="w-4 h-4"></i></div>
+                    <div>
+                      <div class="font-bold text-brand-offBlack">Manage Addresses</div>
+                      <div class="text-[9.5px] text-brand-textSecondary">Saved Home, Work &amp; Family delivery addresses</div>
+                    </div>
+                  </div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                </div>
+                <div class="p-3 flex items-center justify-between spring-press cursor-pointer">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center"><i data-lucide="bell" class="w-4 h-4"></i></div>
+                    <div>
+                      <div class="font-bold text-brand-offBlack">Notifications</div>
+                      <div class="text-[9.5px] text-brand-textSecondary">SMS, WhatsApp &amp; app push controls</div>
+                    </div>
+                  </div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. SUPPORT & LEGAL -->
+            <div>
+              <div class="text-[10px] font-black uppercase text-brand-textSecondary tracking-wider mb-2 px-1">Support &amp; Legal</div>
+              <div class="glass-card rounded-2xl divide-y divide-purple-100/60 overflow-hidden text-xs">
+                <div class="p-3 flex items-center justify-between spring-press cursor-pointer">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center"><i data-lucide="help-circle" class="w-4 h-4"></i></div>
+                    <div>
+                      <div class="font-bold text-brand-offBlack">Help &amp; Support</div>
+                      <div class="text-[9.5px] text-brand-textSecondary">24/7 Helpline, FAQs &amp; Live Chat</div>
+                    </div>
+                  </div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                </div>
+                <div class="p-3 flex items-center justify-between spring-press cursor-pointer">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-purple-50 text-brand-primary flex items-center justify-center"><i data-lucide="shield-check" class="w-4 h-4"></i></div>
+                    <div>
+                      <div class="font-bold text-brand-offBlack">Legal &amp; Policies</div>
+                      <div class="text-[9.5px] text-brand-textSecondary">Terms of Service, Privacy &amp; Licenses</div>
+                    </div>
+                  </div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Log Out Button -->
+            <button class="w-full py-3 bg-white border border-rose-200 text-rose-600 rounded-2xl text-xs font-black shadow-sm flex items-center justify-center gap-2 spring-press">
+              <i data-lucide="log-out" class="w-4 h-4"></i> Log Out
+            </button>
+
+            <!-- Footer Compliance Text -->
+            <div class="text-center text-[10px] text-slate-400 font-medium py-2">
+              <div>MedQuants Healthcare v2.4.0</div>
+              <div class="text-[9px] text-slate-400 mt-0.5">100% Govt. Approved &amp; HIPAA Compliant</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- BOTTOM GLASS DOCK NAVIGATION (Unified Across Main Screens)                -->
+      <!-- ========================================================================= -->
+      <div id="main-bottom-dock" class="absolute bottom-0 left-0 right-0 h-16 glass-dock px-5 flex items-center justify-between z-40">
+        <button onclick="switchScreen('screen-home')" id="nav-btn-home" class="nav-item flex flex-col items-center text-brand-primary spring-press">
+          <i data-lucide="home" class="w-5 h-5 fill-brand-primary"></i>
+          <span class="text-[9px] font-bold mt-0.5">Home</span>
+        </button>
+        <button onclick="switchScreen('screen-doctor-hub')" id="nav-btn-doctor-hub" class="nav-item flex flex-col items-center text-slate-400 hover:text-brand-primary spring-press">
+          <i data-lucide="stethoscope" class="w-5 h-5"></i>
+          <span class="text-[9px] font-semibold mt-0.5">Consult</span>
+        </button>
+        <button onclick="switchScreen('screen-pharmacy-home')" id="nav-btn-pharmacy-home" class="nav-item flex flex-col items-center text-slate-400 hover:text-brand-primary spring-press">
+          <i data-lucide="pill" class="w-5 h-5"></i>
+          <span class="text-[9px] font-semibold mt-0.5">Pharmacy</span>
+        </button>
+        <button onclick="switchScreen('screen-lab-hub')" id="nav-btn-lab-hub" class="nav-item flex flex-col items-center text-slate-400 hover:text-brand-primary spring-press">
+          <i data-lucide="flask-conical" class="w-5 h-5"></i>
+          <span class="text-[9px] font-semibold mt-0.5">Lab Tests</span>
+        </button>
+        <button onclick="switchScreen('screen-profile')" id="nav-btn-profile" class="nav-item flex flex-col items-center text-slate-400 hover:text-brand-primary spring-press">
+          <i data-lucide="user" class="w-5 h-5"></i>
+          <span class="text-[9px] font-semibold mt-0.5">Account</span>
+        </button>
+      </div>
+
+      <!-- iOS Home Bar Indicator -->
+      <div class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-32 h-1 bg-black/25 rounded-full z-50 pointer-events-none"></div>
+
+    </div>
+  </div>
+
+  <script>
+    // Master User Paths Specification (Interactive Wireframe Flow)
+    const USER_PATHS = {
+      path1: {
+        name: 'Doctor Consultation Flow',
+        steps: [
+          { screen: 'screen-home', title: 'Step 1/3: Home Dashboard' },
+          { screen: 'screen-doctor-hub', title: 'Step 2/3: Doctor Hub (Specialties)' },
+          { screen: 'screen-doctor-booking', title: 'Step 3/3: Dr. Rahul Video Booking' }
+        ]
+      },
+      path2: {
+        name: '10-Min Pharmacy Flow',
+        steps: [
+          { screen: 'screen-home', title: 'Step 1/3: Home Dashboard' },
+          { screen: 'screen-pharmacy-home', title: 'Step 2/3: Pharmacy Landing' },
+          { screen: 'screen-medicines', title: 'Step 3/3: 2-Col Medicines Catalog' }
+        ]
+      },
+      path3: {
+        name: 'Doorstep Lab Diagnostic Flow',
+        steps: [
+          { screen: 'screen-home', title: 'Step 1/4: Home Dashboard' },
+          { screen: 'screen-lab-hub', title: 'Step 2/4: Lab Tests Hub' },
+          { screen: 'screen-tests', title: 'Step 3/4: Diagnostic Tests Catalog' },
+          { screen: 'screen-booking', title: 'Step 4/4: Home Phlebotomy Slot' }
+        ]
+      },
+      path4: {
+        name: 'Patient Health Profile Flow',
+        steps: [
+          { screen: 'screen-home', title: 'Step 1/2: Home Dashboard' },
+          { screen: 'screen-profile', title: 'Step 2/2: Account Settings & Records' }
+        ]
+      }
+    };
+
+    let activePathKey = null;
+    let activeStepIndex = 0;
+
+    function startUserPath(pathKey) {
+      activePathKey = pathKey;
+      activeStepIndex = 0;
+      updateWireframeHUD();
+      const currentStep = USER_PATHS[pathKey].steps[activeStepIndex];
+      switchScreen(currentStep.screen);
+    }
+
+    function nextWireframeStep() {
+      if (!activePathKey) return;
+      const path = USER_PATHS[activePathKey];
+      if (activeStepIndex < path.steps.length - 1) {
+        activeStepIndex++;
+        updateWireframeHUD();
+        switchScreen(path.steps[activeStepIndex].screen);
+      } else {
+        alert('Wireframe Path Complete! Returning to Flow Navigator.');
+        switchScreen('screen-splash');
+        exitWireframeMode();
+      }
+    }
+
+    function prevWireframeStep() {
+      if (!activePathKey) return;
+      if (activeStepIndex > 0) {
+        activeStepIndex--;
+        updateWireframeHUD();
+        const path = USER_PATHS[activePathKey];
+        switchScreen(path.steps[activeStepIndex].screen);
+      } else {
+        switchScreen('screen-splash');
+        exitWireframeMode();
+      }
+    }
+
+    function exitWireframeMode() {
+      activePathKey = null;
+      activeStepIndex = 0;
+      const hud = document.getElementById('wireframe-hud');
+      if (hud) hud.classList.add('hidden');
+    }
+
+    function updateWireframeHUD() {
+      const hud = document.getElementById('wireframe-hud');
+      if (!hud) return;
+      if (!activePathKey) {
+        hud.classList.add('hidden');
+        return;
+      }
+      const path = USER_PATHS[activePathKey];
+      const step = path.steps[activeStepIndex];
+      document.getElementById('hud-path-name').textContent = 'Path: ' + path.name;
+      document.getElementById('hud-step-title').textContent = step.title;
+      hud.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    // Shutter Animation Controller
+    let shutterInterval = null;
+    let shutterTimeout = null;
+
+    function triggerShutterUp() {
+      const overlay = document.getElementById('shutter-splash-overlay');
+      if (!overlay) return;
+      overlay.classList.remove('shutter-closed');
+      overlay.classList.add('shutter-open');
+    }
+
+    function replayShutterAnimation() {
+      // 1. Switch to screen-home so the reveal lands directly on the Home Screen
+      switchScreen('screen-home');
+
+      const overlay = document.getElementById('shutter-splash-overlay');
+      const progressBar = document.getElementById('shutter-progress-bar');
+      const statusText = document.getElementById('shutter-status-text');
+      const percentText = document.getElementById('shutter-percent-text');
+      if (!overlay) return;
+
+      if (shutterInterval) clearInterval(shutterInterval);
+      if (shutterTimeout) clearTimeout(shutterTimeout);
+
+      // 2. Snap shutter closed instantly without transition
+      overlay.style.transition = 'none';
+      overlay.classList.remove('shutter-open');
+      overlay.classList.add('shutter-closed');
+      if (progressBar) progressBar.style.width = '0%';
+      if (percentText) percentText.textContent = '0%';
+      if (statusText) statusText.textContent = 'Connecting to NGO Colony Node...';
+
+      // Force layout reflow
+      void overlay.offsetHeight;
+      overlay.style.transition = '';
+
+      // 3. Progress bar animation sequence
+      let currentProgress = 0;
+      shutterInterval = setInterval(() => {
+        currentProgress += 10;
+        if (currentProgress > 100) currentProgress = 100;
+        
+        if (progressBar) progressBar.style.width = currentProgress + '%';
+        if (percentText) percentText.textContent = currentProgress + '%';
+
+        if (statusText) {
+          if (currentProgress < 25) statusText.textContent = 'Connecting to NGO Colony...';
+          else if (currentProgress < 50) statusText.textContent = 'Loading 100+ Verified Specialists...';
+          else if (currentProgress < 80) statusText.textContent = 'Syncing 10-Min Pharmacy...';
+          else if (currentProgress < 100) statusText.textContent = 'Preparing Diagnostic Labs...';
+          else statusText.textContent = 'Welcome to MedQuants';
+        }
+
+        if (currentProgress >= 100) {
+          clearInterval(shutterInterval);
+          // 4. Trigger seamless shutter curtain reveal
+          shutterTimeout = setTimeout(() => {
+            triggerShutterUp();
+          }, 350);
+        }
+      }, 70);
+    }
+
+    // Master Screen Switcher
+    function switchScreen(screenId) {
+      document.querySelectorAll('.app-screen').forEach(s => s.classList.add('hidden'));
+      const activeScreen = document.getElementById(screenId);
+      if (activeScreen) activeScreen.classList.remove('hidden');
+
+      // If switching away from screen-home, ensure shutter overlay is opened so it does not block
+      if (screenId !== 'screen-home') {
+        const overlay = document.getElementById('shutter-splash-overlay');
+        if (overlay) {
+          overlay.classList.add('shutter-open');
+          overlay.classList.remove('shutter-closed');
+        }
+      }
+
+      // Update Top Screen Switcher Buttons
+      document.querySelectorAll('.screen-btn').forEach(b => {
+        b.classList.remove('bg-[#8E2DA8]', 'text-white', 'shadow-md', 'bg-gradient-to-r', 'from-amber-400', 'to-amber-500', 'text-slate-950');
+        b.classList.add('text-slate-400');
+      });
+      const topBtnId = screenId.replace('screen-', 'screen-btn-');
+      const topBtn = document.getElementById(topBtnId);
+      if (topBtn) {
+        topBtn.classList.remove('text-slate-400');
+        if (screenId === 'screen-splash') {
+          topBtn.classList.add('bg-gradient-to-r', 'from-amber-400', 'to-amber-500', 'text-slate-950', 'shadow-md');
+        } else {
+          topBtn.classList.add('bg-[#8E2DA8]', 'text-white', 'shadow-md');
+        }
+      }
+
+      // Hide or Show Bottom Dock for Detail Booking & Splash Screens
+      const bottomDock = document.getElementById('main-bottom-dock');
+      if (bottomDock) {
+        if (screenId === 'screen-doctor-booking' || screenId === 'screen-booking' || screenId === 'screen-splash') {
+          bottomDock.classList.add('hidden');
+        } else {
+          bottomDock.classList.remove('hidden');
+        }
+      }
+
+      // Hide HUD if on Splash Screen
+      if (screenId === 'screen-splash') {
+        const hud = document.getElementById('wireframe-hud');
+        if (hud) hud.classList.add('hidden');
+      }
+
+      // Update Bottom Dock Active State
+      document.querySelectorAll('.nav-item').forEach(n => {
+        n.classList.remove('text-brand-primary');
+        n.classList.add('text-slate-400');
+        const icon = n.querySelector('i');
+        if (icon) icon.classList.remove('fill-brand-primary');
+      });
+      
+      let navId = 'nav-btn-home';
+      if (screenId === 'screen-doctor-hub' || screenId === 'screen-doctor-booking') navId = 'nav-btn-doctor-hub';
+      else if (screenId === 'screen-pharmacy-home' || screenId === 'screen-medicines') navId = 'nav-btn-pharmacy-home';
+      else if (screenId === 'screen-lab-hub' || screenId === 'screen-tests' || screenId === 'screen-booking') navId = 'nav-btn-lab-hub';
+      else if (screenId === 'screen-profile') navId = 'nav-btn-profile';
+
+      const activeNav = document.getElementById(navId);
+      if (activeNav) {
+        activeNav.classList.remove('text-slate-400');
+        activeNav.classList.add('text-brand-primary');
+        const icon = activeNav.querySelector('i');
+        if (icon) icon.classList.add('fill-brand-primary');
+      }
+
+      lucide.createIcons();
+    }
+
+    // Dynamic Loading Progress Simulation
+    function simulateLoading() {
+      const fill = document.getElementById('splash-progress-fill');
+      const statusText = document.getElementById('splash-status-text');
+      const percentText = document.getElementById('splash-percent-text');
+      if (!fill || !statusText || !percentText) return;
+
+      const steps = [
+        { pct: '28%', text: 'Connecting to NGO Colony Node...' },
+        { pct: '64%', text: 'Loading 100+ Verified Specialists...' },
+        { pct: '92%', text: 'Syncing Pharmacy & Diagnostic Labs...' },
+        { pct: '100%', text: 'Ready • Explore User Paths Below' },
+      ];
+
+      let i = 0;
+      function advance() {
+        if (i < steps.length) {
+          fill.style.width = steps[i].pct;
+          percentText.textContent = steps[i].pct;
+          statusText.textContent = steps[i].text;
+          i++;
+          setTimeout(advance, 800);
+        }
+      }
+      setTimeout(advance, 300);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      simulateLoading();
+      replayShutterAnimation();
+    });
+  </script>
+</body>
+</html>
